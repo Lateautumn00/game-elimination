@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <link rel="stylesheet" href="./index.css"></link>
+    
+</head>
+
+<body>
+    <main id="app">
+        <section id="eli-app" ref="eliApp">
+            <div v-for="(item, index) in eliData" :key="index" class="row" :class="'row-' + index">
+                <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' + index1">
+                    <div class="drag-item" :class="'div-' + item1"
+                        @mousedown.stop.prevent="mouseDown($event, index, index1)">
+                        {{item1}}
+                    </div>
+                </div>
+            </div>
+        </section>
+        <button @click="shuffle">洗牌</button>
+    </main>
+   
+
+    <script type="module">
+        import { createApp, ref, nextTick } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+        import Elimination from './elimination.js'
+        let elimination = new Elimination(36, 10)
+        let isClick = false //是否点击块了
+        let target = null //目标块
+        let indexArr = [] //消除的块的坐标
+        let startMousePosition = [] //开始鼠标位置
+        //const eliApp = document.querySelector('#eli-app')
+        createApp(
+            {
+                setup() {
+                    const message = ref('11Hello Vue!')
+                    let eliData = ref([])
+                    let eliApp=ref(null)
+                    return {
+                        eliData,eliApp
+                    }
+                },
+                created() {
+                    this.getTwoDimensionalArrData()
+                    // setInterval(() => {
+                    //     this.shuffle()
+                    // }, 1000)
+                },
+                mounted() {
+
+                },
+
+                methods: {
+                    //获取二维数组数据
+                    getTwoDimensionalArrData() {
+                        this.eliData = elimination.getTwoDimensionalArr()
+
+                    },
+                    //洗牌
+                    shuffle() {
+                        console.log('洗牌')
+                        elimination.updataShuffle()
+                        this.getTwoDimensionalArrData()
+                    },
+                    //鼠标按下
+                    mouseDown(e, row, col) {
+                        if(elimination.getElementNode([row,col])===0) return //如果是空块，则不响应
+                        isClick = true
+                        indexArr = [row,col]
+                        elimination.setIndex(indexArr)
+                        console.log('消除》', elimination.isrRemove())
+                        target = e.target
+                        startMousePosition = [e.clientX, e.clientY]
+                        //console.log('down',e)
+                        this.eliApp.addEventListener('mousemove', this.mouseMove)
+                        this.eliApp.addEventListener('mouseup', this.mouseUp)
+                        this.eliApp.addEventListener('mouseleave', this.mouseLeave)
+                    },
+                    //鼠标移出
+                    mouseLeave(e) {
+                        //console.log('leave')
+                        if (!isClick) return
+                        this.resetData()
+                    },
+                    //鼠标松开
+                    mouseUp(e) {
+                        // console.log('up', e.clientX, e.clientY)
+                        if (!isClick) return
+                        this.resetData()
+                    },
+                    //鼠标移动
+                    mouseMove(e) {
+                        //e.preventDefault()
+                        if (!isClick) return
+                        const direction = this.getDirection(e)
+                        this.getMoveData(direction)
+                        target.style.top = e.clientY + 'px'
+                        target.style.zIndex = 222
+                        //console.log('move', e)
+
+                    },
+                    //判断移动方向
+                    getDirection(e) {
+                        let direction = ''
+                        const deltaX = e.clientX - startMousePosition[0]
+                        const deltaY = e.clientY - startMousePosition[1]
+                        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                            if (deltaX > 0) {
+                                //console.log('Moving right')
+                                direction = 'right'
+                            } else {
+                                //console.log('Moving left')
+                                direction = 'left'
+                            }
+                        } else {
+                            if (deltaY > 0) {
+                                //console.log('Moving down')
+                                direction = 'down'
+                            } else {
+                                //console.log('Moving up')
+                                direction = 'up'
+                            }
+                        }
+                        //console.log('direction', direction)
+                        return direction
+
+                    },
+                    //重置数据
+                    resetData() {
+                        isClick = false
+                        target = null
+                        indexArr = []
+                        startMousePosition = []
+                        this.eliApp.removeEventListener('mousemove', this.mouseMove)
+                        this.eliApp.removeEventListener('mouseup', this.mouseUp)
+                        this.eliApp.removeEventListener('mouseleave', this.mouseLeave)
+                    },
+                    //判断是否超出范围
+                    // isOutRange(row, col) {}
+                    //判断可移动范围
+                    // 获取可以一起移动的数据 
+                    getMoveData(direction) {
+                        console.log('getMoveData', direction,indexArr)
+                    }
+                }
+            }).mount('#app')
+    </script>
+</body>
+
+</html>

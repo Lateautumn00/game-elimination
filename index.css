@@ -1,0 +1,187 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: content-box;
+}
+
+#app {
+    width: 400px;
+    margin: 0 auto;
+    
+}
+#elimination{
+    position: relative;
+    cursor: move;
+    width: inherit;
+    height: inherit;
+}
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.col {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+}
+
+.drag-item {
+    width: inherit;
+    height: inherit;
+    display: flex;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 111;
+}
+
+.div-0 {
+    background-color: #fff;
+}
+
+.div-1 {
+    background-color: #c10000;
+}
+
+.div-2 {
+    background-color: #67c25e;
+}
+
+.div-3 {
+    background-color: #c3c3c3;
+}
+
+.div-4 {
+    background-color: #4d4d4d;
+}
+
+.div-5 {
+    background-color: #c555cc;
+}
+
+.div-6 {
+    background-color: #ddd666;
+}
+
+.div-7 {
+    background-color: #7777ee;
+}
+
+.div-8 {
+    background-color: #cc8000;
+}
+
+.div-9 {
+    background-color: #c90000;
+}
+
+.div-10 {
+    background-color: #50107e;
+}
+
+.div-11 {
+    background-color: #8f5555;
+}
+
+.div-12 {
+    background-color: #cc6a6f;
+}
+
+.div-13 {
+    background-color: #fd3f00;
+}
+
+.div-14 {
+    background-color: #363030;
+}
+
+.div-15 {
+    background-color: #301919;
+}
+
+.div-16 {
+    background-color: #5986aa;
+}
+
+.div-17 {
+    background-color: #11232f;
+}
+
+.div-18 {
+    background-color: #200606;
+}
+
+.div-19 {
+    background-color: #1fcf5d;
+}
+
+.div-20 {
+    background-color: #c52d2d;
+}
+
+.div-21 {
+    background-color: #693232;
+}
+
+.div-22 {
+    background-color: #2bcc2b;
+}
+
+.div-23 {
+    background-color: #995757;
+}
+
+.div-24 {
+    background-color: #a08989;
+}
+
+.div-25 {
+    background-color: #4f1164;
+}
+
+.div-26 {
+    background-color: #9d4ba6;
+}
+
+.div-27 {
+    background-color: #5c21dc;
+}
+
+.div-28 {
+    background-color: #a03b93;
+}
+
+.div-29 {
+    background-color: #740d42;
+}
+
+.div-30 {
+    background-color: #460909;
+}
+
+.div-31 {
+    background-color: #2b1399;
+}
+
+.div-32 {
+    background-color: #69bebe;
+}
+
+.div-33 {
+    background-color: #3b2139;
+}
+
+.div-34 {
+    background-color: #6f314a;
+}
+
+.div-35 {
+    background-color: #473838;
+}
+
+.div-36 {
+    background-color: #024c0d;
+}
