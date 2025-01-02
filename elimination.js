@@ -63,8 +63,6 @@ class Elimination {
   num = 36;  //多少种类块
   chunkSize = 10;//每行多少块
   twoDimensionalArr = [];//初始化生成的二维数组
-  // colIndex=0;
-  // rowIndex=0;
   indexData = {
     click: [],
     left: [],
@@ -72,6 +70,7 @@ class Elimination {
     up: [],
     down: []
   }//当前点 前后左右四个方向对应非0值的坐标
+  move = ''//移动方向
   constructor(num = 36, chunkSize = 10) {
     this.num = num;
     this.chunkSize = chunkSize;
@@ -206,6 +205,28 @@ class Elimination {
   //获取当前的二维数组
   getTwoDimensionalArr() {
     return this.twoDimensionalArr;
+  }
+  //获取当前点击元素的周围值
+  getIndexData() {
+    return this.indexData
+  }
+  //清空当前点击元素周围值
+  clearIndexData() {
+    this.indexData = {
+      click: [],
+      left: [],
+      right: [],
+      up: [],
+      down: []
+    }
+  }
+  //设置移动方向
+  setMove(move) {
+    this.move = move
+  }
+  //获取移动方向
+  getMove() {
+    return this.move
   }
 }
 // let elimination = new Elimination(36, 10)

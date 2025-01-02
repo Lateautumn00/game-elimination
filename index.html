@@ -32,12 +32,9 @@
         import { createApp, ref, nextTick } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
         import Elimination from './elimination.js'
         let elimination = new Elimination(36, 10)
-        let isClick = false //是否点击块了
-        let target = null //目标块
-        let indexArr = [] //消除的块的坐标
+        let target = null 
         let startMousePosition = [] //开始鼠标位置
         const directionArr =Object.keys(elimination.indexData)
-        let move=''
         createApp(
             {
                 setup() {
@@ -73,9 +70,7 @@
                     //鼠标按下
                     mouseDown(e, row, col) {
                         if(elimination.getElementNode([row,col])===0) return //如果是空块，则不响应
-                        isClick = true
-                        indexArr = [row,col]
-                        elimination.setIndex(indexArr)
+                        elimination.setIndex([row,col])
                         console.log('消除》', elimination.isrRemove())
                         target = e.target
                         startMousePosition = [e.clientX, e.clientY]
@@ -87,30 +82,31 @@
                     //鼠标移出
                     mouseLeave(e) {
                         //console.log('leave')
-                        if (!isClick) return
+                        if (!elimination.getIndexData().click.length) return
                         this.resetData()
                     },
                     //鼠标松开
                     mouseUp(e) {
                         // console.log('up', e.clientX, e.clientY)
-                        if (!isClick) return
+                        if (!elimination.getIndexData().click.length) return
                         this.resetData()
                     },
                     //鼠标移动
                     mouseMove(e) {
                         //e.preventDefault()
-                        if (!isClick) return
+                        if (!elimination.getIndexData().click.length) return
                         const direction = this.getDirection(e)
-                        if(move!==direction[2]){
-                          if(move===''){
-                            move=direction[2]
+                        let move = elimination.getMove()
+                        if(elimination.getMove()!==direction[2]){
+                          if(elimination.getMove()===''){
+                            elimination.setMove(direction[2])
                           }else{
-                            let n=directionArr.indexOf(move)
-                            if(n%2===0 && direction[2]===directionArr[n-1]) move=direction[2]// 1 3
-                            else if(n%2===1 && direction[2]===directionArr[n+1]) move=direction[2]//2 4
+                            let n=directionArr.indexOf(elimination.getMove())
+                            if(n%2===0 && direction[2]===directionArr[n-1]) elimination.setMove(direction[2])// 1 3
+                            else if(n%2===1 && direction[2]===directionArr[n+1]) elimination.setMove(direction[2])//2 4
                           }
                           
-                          this.getMoveData(move)
+                          this.getMoveData(elimination.getMove())
                         }
                         
                         //['click', 'left', 'right', 'up', 'down']
@@ -156,11 +152,10 @@
                     },
                     //重置数据
                     resetData() {
-                        isClick = false
                         target = null
-                        indexArr = []
+                        elimination.clearIndexData()
                         startMousePosition = []
-                        move=''
+                        elimination.setMove('')
                         this.eliApp.removeEventListener('mousemove', this.mouseMove)
                         this.eliApp.removeEventListener('mouseup', this.mouseUp)
                         this.eliApp.removeEventListener('mouseleave', this.mouseLeave)
@@ -170,7 +165,7 @@
                     //判断可移动范围
                     // 获取可以一起移动的数据 
                     getMoveData(direction) {
-                        console.log('getMoveData', direction,indexArr)
+                        console.log('getMoveData', direction,elimination.getIndexData())
                     }
                 }
             }).mount('#app')
