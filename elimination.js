@@ -71,6 +71,7 @@ class Elimination {
     down: []
   }//当前点 前后左右四个方向对应非0值的坐标
   move = ''//移动方向
+  directionArr = Object.keys(this.indexData)// ['click', 'left', 'right', 'up', 'down']
   constructor(num = 36, chunkSize = 10) {
     this.num = num;
     this.chunkSize = chunkSize;
@@ -107,7 +108,10 @@ class Elimination {
       [32, 6, 31, 8, 11, 0, 19, 22, 35, 4]
     ]
   }
-
+  //暴漏directionArr
+  getDirectionArr() {
+    return this.directionArr
+  }
   /**
    * 设置当前点击的坐标  位置从0开始
    * @param {*} rowIndex 第几列
@@ -145,7 +149,7 @@ class Elimination {
    * 根据位置获取元素
    */
   getElement(type) {
-    if (Object.keys(this.indexData).includes(type) === false) return -1;//判断是否包含该类型 left right up down
+    if (this.directionArr.includes(type) === false) return -1;//判断是否包含该类型 left right up down
     if (this.indexData[type].includes(-1) === true) return -1;//判断数组是否有-1   表示  在行或者列 上没有对应的元素   全是0
     const rowData = this.twoDimensionalArr[this.indexData[type][0]];
     return rowData[this.indexData[type][1]];
@@ -222,11 +226,27 @@ class Elimination {
   }
   //设置移动方向
   setMove(move) {
-    this.move = move
+    if (this.move !== move) {
+      if (this.move === '') {
+        this.move = move
+      } else {
+        let n = this.directionArr.indexOf(this.move)
+        if (n % 2 === 0 && move === this.directionArr[n - 1]) this.move = move// 1 3
+        else if (n % 2 === 1 && move === this.directionArr[n + 1]) this.move = move//2 4
+      }
+    }
   }
-  //获取移动方向
+  //获取移动方向 及 轴
   getMove() {
-    return this.move
+    return {
+      move: this.move,
+      //移动轴线
+      axis: [this.directionArr[1], this.directionArr[2]].includes(this.move) ? 'row' : 'col' // row 同一行 col 同一列 移动 
+    }
+  }
+  //清除移动方向
+  clearMove() {
+    this.move = ''
   }
 }
 // let elimination = new Elimination(36, 10)
