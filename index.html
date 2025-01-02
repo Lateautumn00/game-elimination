@@ -95,7 +95,6 @@
                         //e.preventDefault()
                         if (!elimination.getIndexData().click.length) return
                         const direction = this.getDirection(e)
-                        elimination.setMove(direction[2])
                         const moveObj =elimination.getMove()
                         //this.getMoveData(moveObj.move)
                         if(moveObj.axis==='row'){
@@ -109,12 +108,10 @@
 
                     },
                     //判断移动方向
-                    getDirection(e) {
-                        
+                    getDirection(e) {                       
                         let direction = ''
                         const deltaX = e.clientX - startMousePosition[0]
                         const deltaY = e.clientY - startMousePosition[1]
-                        
                         if (Math.abs(deltaX) > Math.abs(deltaY)) {
                             if (deltaX > 0) {
                                 //console.log('Moving right')
@@ -133,10 +130,8 @@
                             }
                         }
                         //console.log('direction', direction)
-                        return [deltaX,deltaY,direction]
-                          
-                        
-
+                        elimination.setMove(direction)
+                        return [deltaX,deltaY]
                     },
                     //重置数据
                     resetData() {
@@ -152,9 +147,10 @@
                     // isOutRange(row, col) {}
                     //判断可移动范围
                     // 获取可以一起移动的数据 
-                    getMoveData(direction) {
-                        console.log('getMoveData', direction,elimination.getIndexData())
-                    }
+                    // getMoveData() {
+                    //   elimination.getMoveData()
+                    //     //console.log('getMoveData', direction,elimination.getIndexData())
+                    // }
                 }
             }).mount('#app')
     </script>

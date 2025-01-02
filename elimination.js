@@ -72,6 +72,7 @@ class Elimination {
   }//当前点 前后左右四个方向对应非0值的坐标
   move = ''//移动方向
   directionArr = Object.keys(this.indexData)// ['click', 'left', 'right', 'up', 'down']
+  moveData = []//当前移动块
   constructor(num = 36, chunkSize = 10) {
     this.num = num;
     this.chunkSize = chunkSize;
@@ -124,11 +125,11 @@ class Elimination {
     if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) {
       throw new Error("列超出范围")
     }
-    this.indexData.click = indexArr//设置当前点击的坐标
-    this.indexData.left = [indexArr[0], -1]//初始化对应的left
-    this.indexData.right = [indexArr[0], -1]//初始化对应的right
-    this.indexData.up = [-1, indexArr[1]]//初始化对应的up
-    this.indexData.down = [-1, indexArr[1]]//初始化对应的down
+    this.indexData.click = [...indexArr]//设置当前点击的坐标
+    this.indexData.left = [...indexArr]//初始化对应的left
+    this.indexData.right = [...indexArr]//初始化对应的right
+    this.indexData.up = [...indexArr]//初始化对应的up
+    this.indexData.down = [...indexArr]//初始化对应的down
     this.getRowDatas()//更新对应的left right  0 跳过
     this.getColDatas()//更新对应的up down  0 跳过
   }
@@ -151,6 +152,8 @@ class Elimination {
   getElement(type) {
     if (this.directionArr.includes(type) === false) return -1;//判断是否包含该类型 left right up down
     if (this.indexData[type].includes(-1) === true) return -1;//判断数组是否有-1   表示  在行或者列 上没有对应的元素   全是0
+    if (this.indexData[type][0] < 0 || this.indexData[type][0] > this.chunkSize) return -1;
+    if (this.indexData[type][1] < 0 || this.indexData[type][1] > this.twoDimensionalArr.length) return -1;
     const rowData = this.twoDimensionalArr[this.indexData[type][0]];
     return rowData[this.indexData[type][1]];
   }
@@ -178,32 +181,27 @@ class Elimination {
    * 更新click 对应的left right
    */
   getRowDatas() {
-    this.indexData.left[1] = this.indexData.click[1] - 1 >= 0 ? this.indexData.click[1] - 1 : -1
-    this.indexData.right[1] = this.indexData.click[1] + 1 < this.chunkSize ? this.indexData.click[1] + 1 : -1
     //向左移动指针
-    while (this.indexData.left[1] >= 0 && this.getElement('left') === 0) {
-      this.indexData.left[1] = this.indexData.left[1] - 1 >= 0 ? this.indexData.left[1] - 1 : -1
-    }
+    do {
+      this.indexData.left[1] -= 1
+    } while (this.indexData.left[1] >= 0 && this.getElement('left') === 0)
     //向右移动指针
-    while (this.indexData.right[1] >= 0 && this.getElement('right') === 0) {
-      this.indexData.right[1] = this.indexData.right[1] + 1 < this.chunkSize ? this.indexData.right[1] + 1 : -1
-    }
-    //console.log(this.indexData)
+    do {
+      this.indexData.right[1] += 1
+    } while (this.indexData.right[1] < this.chunkSize && this.getElement('right') === 0)
   }
   //判断同一列是否还有可消除的
   getColDatas() {
-    this.indexData.up[0] = this.indexData.click[0] - 1 >= 0 ? this.indexData.click[0] - 1 : -1
-    this.indexData.down[0] = this.indexData.click[0] + 1 < this.twoDimensionalArr.length ? this.indexData.click[0] + 1 : -1
     //向上移动指针
-    while (this.indexData.up[0] >= 0 && this.getElement('up') === 0) {
-      this.indexData.up[0] = this.indexData.up[0] - 1 >= 0 ? this.indexData.up[0] - 1 : -1
-    }
+    do {
+      this.indexData.up[0] -= 1
+    } while (this.indexData.up[0] >= 0 && this.getElement('up') === 0)
     //向下移动指针
-    while (this.indexData.down[0] >= 0 && this.getElement('down') === 0) {
-      this.indexData.down[0] = this.indexData.down[0] + 1 < this.twoDimensionalArr.length ? this.indexData.down[0] + 1 : -1
-    }
-    // console.log(this.twoDimensionalArr)
-    // console.log(this.indexData)
+
+    do {
+      this.indexData.down[0] += 1
+    } while (this.indexData.down[0] < this.twoDimensionalArr.length && this.getElement('down') === 0)
+    console.log(this.indexData)
   }
   //判断消除后 是否还有可消除的部分 包含未移动的部分
   //获取当前的二维数组
@@ -229,10 +227,16 @@ class Elimination {
     if (this.move !== move) {
       if (this.move === '') {
         this.move = move
+        this.getMoveData()
       } else {
         let n = this.directionArr.indexOf(this.move)
-        if (n % 2 === 0 && move === this.directionArr[n - 1]) this.move = move// 1 3
-        else if (n % 2 === 1 && move === this.directionArr[n + 1]) this.move = move//2 4
+        if (n % 2 === 0 && move === this.directionArr[n - 1]) {
+          this.move = move // 1 3
+          this.getMoveData()
+        } else if (n % 2 === 1 && move === this.directionArr[n + 1]) {
+          this.move = move//2 4
+          this.getMoveData()
+        }
       }
     }
   }
@@ -247,6 +251,50 @@ class Elimination {
   //清除移动方向
   clearMove() {
     this.move = ''
+  }
+  //根据移动方向获取哪些块可以移动
+  getMoveData() {
+    //例如向右移动获取可以移动的块
+    let pointer = -1
+    this.moveData = []
+    //['click', 'left', 'right', 'up', 'down']
+    switch (this.move) {
+      case this.directionArr[1]:
+        pointer = this.indexData.click[1]
+        while (pointer >= 0 && this.getElementNode([this.indexData.click[0], pointer]) !== 0) {
+          this.moveData.push([this.indexData.click[0], pointer])
+          pointer -= 1
+        }
+        break;
+      case this.directionArr[2]:
+        pointer = this.indexData.click[1]
+        while (pointer < this.chunkSize && this.getElementNode([this.indexData.click[0], pointer]) !== 0) {
+          this.moveData.push([this.indexData.click[0], pointer])
+          pointer += 1
+        }
+        break;
+      case this.directionArr[3]:
+        pointer = this.indexData.click[0]
+        while (pointer >= 0 && this.getElementNode([pointer, this.indexData.click[1]]) !== 0) {
+          this.moveData.push([pointer, this.indexData.click[1]])
+          pointer -= 1
+        }
+        break;
+      case this.directionArr[4]:
+        pointer = this.indexData.click[0]
+        while (pointer < this.twoDimensionalArr.length && this.getElementNode([pointer, this.indexData.click[1]]) !== 0) {
+          this.moveData.push([pointer, this.indexData.click[1]])
+          pointer += 1
+        }
+        break;
+      default:
+        break;
+    }
+    console.log('可移动的块', this.move, this.moveData)
+  }
+  //清除
+  clearMoveData() {
+    this.moveData = []
   }
 }
 // let elimination = new Elimination(36, 10)
