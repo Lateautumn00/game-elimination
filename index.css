@@ -1,39 +1,32 @@
+:root{
+  --side-length:40px;
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: content-box;
 }
-
 #app {
     width: 400px;
     margin: 0 auto;
     
 }
-#elimination{
-    position: relative;
-    cursor: move;
-    width: inherit;
-    height: inherit;
-}
 .row {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
+    line-height: var(--side-length);
+    color: #fff;
 }
 
 .col {
-    width: 40px;
-    height: 40px;
+    width: var(--side-length);
+    height: var(--side-length);
     border: 1px solid #ccc;
 }
 
 .drag-item {
     width: inherit;
     height: inherit;
-    display: flex;
-    color: #fff;
-    justify-content: center;
-    align-items: center;
     position: absolute;
     z-index: 111;
 }
