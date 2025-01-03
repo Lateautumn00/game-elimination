@@ -76,7 +76,6 @@
             mouseDown(e, row, col) {
               if (elimination.getElementNode([row, col]) === 0) return //如果是空块，则不响应
               elimination.setIndex([row, col])
-              console.log('消除》', elimination.isrRemove())
               startMousePosition = [e.clientX, e.clientY]
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)
@@ -86,19 +85,19 @@
             //鼠标移出
             mouseLeave(e) {
               //console.log('leave')
-              if (!elimination.getIndexData().click.length) return
+              if (!elimination.getClickIndexData().length) return
               this.resetData()
             },
             //鼠标松开
             mouseUp(e) {
               // console.log('up', e.clientX, e.clientY)
-              if (!elimination.getIndexData().click.length) return
+              if (!elimination.getClickIndexData().length) return
               this.resetData()
             },
             //鼠标移动
             mouseMove(e) {
               //e.preventDefault()
-              if (!elimination.getIndexData().click.length) return
+              if (!elimination.getClickIndexData().length) return
               const direction = this.getDirection(e)
               const moveObj = elimination.getMove()
               moveObj.moveData.forEach((v) => {
@@ -141,7 +140,7 @@
             },
             //重置数据
             resetData() {
-              elimination.clearIndexData()
+              elimination.removeClickIndexData()
               startMousePosition = []
               elimination.clearMove()
               this.eliApp.removeEventListener('mousemove', this.mouseMove)

@@ -63,6 +63,7 @@ class Elimination {
   num = 36;  //多少种类块
   chunkSize = 10;//每行多少块
   twoDimensionalArr = [];//初始化生成的二维数组
+  clickIndexData = []//当前点击的点
   indexData = {
     click: [],
     left: [],
@@ -110,6 +111,13 @@ class Elimination {
       [32, 6, 31, 8, 11, 0, 19, 22, 35, 4]
     ]
   }
+  getClickIndexData() {
+    return this.clickIndexData
+  }
+  //获取当前点击的坐标
+  removeClickIndexData() {
+    return this.clickIndexData = []
+  }
   //暴漏directionArr
   getDirectionArr() {
     return this.directionArr
@@ -126,14 +134,10 @@ class Elimination {
     if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) {
       throw new Error("列超出范围")
     }
-    this.indexData.click = [...indexArr]//设置当前点击的坐标
-    this.indexData.left = [...indexArr]//初始化对应的left
-    this.indexData.right = [...indexArr]//初始化对应的right
-    this.indexData.up = [...indexArr]//初始化对应的up
-    this.indexData.down = [...indexArr]//初始化对应的down
-    this.getRowDatas()//更新对应的left right  0 跳过
-    this.getColDatas()//更新对应的up down  0 跳过
+    this.clickIndexData = [...indexArr]
+
   }
+
   /**
    * 洗牌 随机打乱当前已存在的二维数组
    * @returns 
@@ -147,17 +151,6 @@ class Elimination {
     this.twoDimensionalArr = arr2
     //console.log(this.twoDimensionalArr)
   }
-  /**
-   * 根据位置获取元素
-   */
-  getElement(type) {
-    if (this.directionArr.includes(type) === false) return -1;//判断是否包含该类型 left right up down
-    if (this.indexData[type].includes(-1) === true) return -1;//判断数组是否有-1   表示  在行或者列 上没有对应的元素   全是0
-    if (this.indexData[type][0] < 0 || this.indexData[type][0] > this.chunkSize) return -1;
-    if (this.indexData[type][1] < 0 || this.indexData[type][1] > this.twoDimensionalArr.length) return -1;
-    const rowData = this.twoDimensionalArr[this.indexData[type][0]];
-    return rowData[this.indexData[type][1]];
-  }
   //设置某个位置的数据
   setElementNode(indexArr, value) {
     const rowData = this.twoDimensionalArr[indexArr[0]];
@@ -165,49 +158,29 @@ class Elimination {
   }
   //获取点的数据
   getElementNode(indexArr) {
+    if (indexArr[0] < 0 || indexArr[0] > this.chunkSize) return -1;
+    if (indexArr[1] < 0 || indexArr[1] > this.twoDimensionalArr.length) return -1;
     const rowData = this.twoDimensionalArr[indexArr[0]];
-    //console.log(indexArr, rowData[indexArr[1]])
     return rowData[indexArr[1]];
+  }
+  //设置当前点
+  setIndexData(indexArr) {
+    this.indexData.click = [...indexArr]//设置当前点击的坐标
+    this.indexData.left = [...indexArr]//初始化对应的left
+    this.indexData.right = [...indexArr]//初始化对应的right
+    this.indexData.up = [...indexArr]//初始化对应的up
+    this.indexData.down = [...indexArr]//初始化对应的down
+    this.getRowDatas()//更新对应的left right  0 跳过
+    this.getColDatas()//更新对应的up down  0 跳过
   }
   //判断当前点与上下左右四个方向是否有相同的元素消除
   isrRemove() {
     return {
-      left: [...this.indexData.left, this.getElement('left') === this.getElement('click')],
-      right: [...this.indexData.right, this.getElement('right') === this.getElement('click')],
-      up: [...this.indexData.up, this.getElement('up') === this.getElement('click')],
-      down: [...this.indexData.down, this.getElement('down') === this.getElement('click')]
+      left: [...this.indexData.left, this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)],
+      right: [...this.indexData.right, this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)],
+      up: [...this.indexData.up, this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)],
+      down: [...this.indexData.down, this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)]
     }
-  }
-  /**
-   * 更新click 对应的left right
-   */
-  getRowDatas() {
-    //向左移动指针
-    do {
-      this.indexData.left[1] -= 1
-    } while (this.indexData.left[1] >= 0 && this.getElement('left') === 0)
-    //向右移动指针
-    do {
-      this.indexData.right[1] += 1
-    } while (this.indexData.right[1] < this.chunkSize && this.getElement('right') === 0)
-  }
-  //判断同一列是否还有可消除的
-  getColDatas() {
-    //向上移动指针
-    do {
-      this.indexData.up[0] -= 1
-    } while (this.indexData.up[0] >= 0 && this.getElement('up') === 0)
-    //向下移动指针
-
-    do {
-      this.indexData.down[0] += 1
-    } while (this.indexData.down[0] < this.twoDimensionalArr.length && this.getElement('down') === 0)
-    console.log(this.indexData)
-  }
-  //判断消除后 是否还有可消除的部分 包含未移动的部分
-  //获取当前的二维数组
-  getTwoDimensionalArr() {
-    return this.twoDimensionalArr;
   }
   //获取当前点击元素的周围值
   getIndexData() {
@@ -223,6 +196,38 @@ class Elimination {
       down: []
     }
   }
+  /**
+   * 更新click 对应的left right
+   */
+  getRowDatas() {
+    //向左移动指针
+    do {
+      this.indexData.left[1] -= 1
+    } while (this.indexData.left[1] >= 0 && this.getElementNode(this.indexData.left) === 0)
+    //向右移动指针
+    do {
+      this.indexData.right[1] += 1
+    } while (this.indexData.right[1] < this.chunkSize && this.getElementNode(this.indexData.right) === 0)
+  }
+  //判断同一列是否还有可消除的
+  getColDatas() {
+    //向上移动指针
+    do {
+      this.indexData.up[0] -= 1
+    } while (this.indexData.up[0] >= 0 && this.getElementNode(this.indexData.up) === 0)
+    //向下移动指针
+
+    do {
+      this.indexData.down[0] += 1
+    } while (this.indexData.down[0] < this.twoDimensionalArr.length && this.getElementNode(this.indexData.down) === 0)
+    //console.log(this.indexData)
+  }
+  //判断消除后 是否还有可消除的部分 包含未移动的部分
+  //获取当前的二维数组
+  getTwoDimensionalArr() {
+    return this.twoDimensionalArr;
+  }
+
   //设置移动方向
   setMove(move) {
     //this.moveDirStatus = false
@@ -268,30 +273,30 @@ class Elimination {
     //['click', 'left', 'right', 'up', 'down']
     switch (this.move) {
       case this.directionArr[1]:
-        pointer = this.indexData.click[1]
-        while (pointer >= 0 && this.getElementNode([this.indexData.click[0], pointer]) !== 0) {
-          this.moveData.push([this.indexData.click[0], pointer])
+        pointer = this.clickIndexData[1]
+        while (pointer >= 0 && this.getElementNode([this.clickIndexData[0], pointer]) !== 0) {
+          this.moveData.push([this.clickIndexData[0], pointer])
           pointer -= 1
         }
         break;
       case this.directionArr[2]:
-        pointer = this.indexData.click[1]
-        while (pointer < this.chunkSize && this.getElementNode([this.indexData.click[0], pointer]) !== 0) {
-          this.moveData.push([this.indexData.click[0], pointer])
+        pointer = this.clickIndexData[1]
+        while (pointer < this.chunkSize && this.getElementNode([this.clickIndexData[0], pointer]) !== 0) {
+          this.moveData.push([this.clickIndexData[0], pointer])
           pointer += 1
         }
         break;
       case this.directionArr[3]:
-        pointer = this.indexData.click[0]
-        while (pointer >= 0 && this.getElementNode([pointer, this.indexData.click[1]]) !== 0) {
-          this.moveData.push([pointer, this.indexData.click[1]])
+        pointer = this.clickIndexData[0]
+        while (pointer >= 0 && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
+          this.moveData.push([pointer, this.clickIndexData[1]])
           pointer -= 1
         }
         break;
       case this.directionArr[4]:
-        pointer = this.indexData.click[0]
-        while (pointer < this.twoDimensionalArr.length && this.getElementNode([pointer, this.indexData.click[1]]) !== 0) {
-          this.moveData.push([pointer, this.indexData.click[1]])
+        pointer = this.clickIndexData[0]
+        while (pointer < this.twoDimensionalArr.length && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
+          this.moveData.push([pointer, this.clickIndexData[1]])
           pointer += 1
         }
         break;
