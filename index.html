@@ -99,20 +99,34 @@
             },
             //鼠标移动
             mouseMove(e) {
+
               //e.preventDefault()
               if (!elimination.getClickIndexData().length) return
               const direction = this.getDirection(e)
+              //if (Math.abs(direction[0]) < 20 && Math.abs(direction[1]) < 20) return// 判断是否移动超过10px 不超过则不移动
               const moveObj = elimination.getMove()
-              moveObj.moveData.forEach((v) => {
+              moveObj.moveData.forEach((v, i) => {
                 const t = this.itemRefs[`i-${v[0]}-${v[1]}`]
-                if (moveObj.axis === 'row') {
-                  t.style.transform = 'translateX(' + direction[0] + 'px)'
-                } else if (moveObj.axis === 'col') {
-                  t.style.transform = 'translateY(' + direction[1] + 'px)'
+                if (i === moveObj.moveData.length - 1) {
+
+                  //如果是最后一个元素   判断有没有越位
+                  if (moveObj.axis === 'row') {
+                    //判断是否超过下限 上限
+                  } else if (moveObj.axis === 'col') {
+                    //判断是否超过左边 右边
+                  }
+
+                  //如果是最后一个元素   判断有没有越位
+                  //console.log('last:', t, t.offsetLeft, t.offsetTop, t.offsetWidth, t.offsetHeight, t.style)
                 }
+
+                t.style.transform = moveObj.axis === 'col' ? 'translateX(' + direction[0] + 'px)' : 'translateY(' + direction[1] + 'px)'
                 t.style.zIndex = 222
+
               })
-              console.log('move')
+
+              //console.log('moveData', moveObj.moveData, moveObj.moveData.at(-1))
+              console.log('move', e.clientX, e.clientY)
 
             },
             //判断移动方向

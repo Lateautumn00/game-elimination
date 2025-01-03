@@ -124,8 +124,6 @@ class Elimination {
   }
   /**
    * 设置当前点击的坐标  位置从0开始
-   * @param {*} rowIndex 第几列
-   * @param {*} colIndex 第几行
    */
   setIndex(indexArr) {
     if (indexArr[0] < 0 || indexArr[0] > this.twoDimensionalArr.length) {
@@ -255,7 +253,7 @@ class Elimination {
     return {
       move: this.move,
       //移动轴线
-      axis: [this.directionArr[1], this.directionArr[2]].includes(this.move) ? 'row' : 'col', // row 同一行 col 同一列 移动 
+      axis: [this.directionArr[3], this.directionArr[4]].includes(this.move) ? 'row' : 'col', // 上下移动的是移动的行  左右移动是移动的列
       //moveDirStatus: this.moveDirStatus,
       moveData: this.moveData // 移动的数据
     }
