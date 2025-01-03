@@ -163,7 +163,7 @@ class Elimination {
     const rowData = this.twoDimensionalArr[indexArr[0]];
     return rowData[indexArr[1]];
   }
-  //设置当前点
+  //设置当前点 并获取前后左右元素坐标
   setIndexData(indexArr) {
     this.indexData.click = [...indexArr]//设置当前点击的坐标
     this.indexData.left = [...indexArr]//初始化对应的left
