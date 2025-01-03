@@ -158,9 +158,10 @@ class Elimination {
   }
   //获取点的数据
   getElementNode(indexArr) {
-    if (indexArr[0] < 0 || indexArr[0] > this.twoDimensionalArr.length) return -1;
-    if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) return -1;
+    if (indexArr[0] < 0 || indexArr[0] >= this.twoDimensionalArr.length) return -1;
+    if (indexArr[1] < 0 || indexArr[1] >= this.chunkSize) return -1;
     const rowData = this.twoDimensionalArr[indexArr[0]];
+    //console.log(123, indexArr, rowData)
     return rowData[indexArr[1]];
   }
   //设置当前点 并获取前后左右元素坐标
