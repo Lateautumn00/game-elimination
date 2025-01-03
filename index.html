@@ -75,7 +75,10 @@
             //鼠标按下
             mouseDown(e, row, col) {
               if (elimination.getElementNode([row, col]) === 0) return //如果是空块，则不响应
-              elimination.setIndex([row, col])
+              elimination.setIndex([row, col])//设置当前点击的y轴和x轴
+              //获取当前点 前后左右 是否有可消除的
+              elimination.setIndexData([row, col])
+              console.log('消除', elimination.isrRemove())
               startMousePosition = [e.clientX, e.clientY]
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)

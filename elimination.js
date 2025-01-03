@@ -158,8 +158,8 @@ class Elimination {
   }
   //获取点的数据
   getElementNode(indexArr) {
-    if (indexArr[0] < 0 || indexArr[0] > this.chunkSize) return -1;
-    if (indexArr[1] < 0 || indexArr[1] > this.twoDimensionalArr.length) return -1;
+    if (indexArr[0] < 0 || indexArr[0] > this.twoDimensionalArr.length) return -1;
+    if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) return -1;
     const rowData = this.twoDimensionalArr[indexArr[0]];
     return rowData[indexArr[1]];
   }
