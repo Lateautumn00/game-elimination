@@ -298,7 +298,7 @@ class Elimination {
       default:
         break;
     }
-    console.log('可移动的块', this.move, this.moveData)
+    //console.log('可移动的块', this.move, this.moveData)
   }
 }
 // let elimination = new Elimination(36, 10)
