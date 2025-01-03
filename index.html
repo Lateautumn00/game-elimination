@@ -16,15 +16,14 @@
         <section id="eli-app" ref="eliApp">
           <div v-for="(item, index) in eliData" :key="index" class="row" :class="'row-' + index">
               <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' + index1">
-                  <div class="drag-item" :class="'div-' + item1"
+                  <div class="drag-item" :class="'div-' + item1" :ref="setItemRef('i-'+index+'-'+index1)"
                       @mousedown.stop.prevent="mouseDown($event, index, index1)">
                       {{item1}}
                   </div>
               </div>
           </div>
       </section>
-        
-        <button @click="shuffle">洗牌</button>
+      <button @click="shuffle">洗牌</button>
     </main>
    
 
@@ -40,15 +39,13 @@
                     const message = ref('11Hello Vue!')
                     let eliData = ref([])
                     let eliApp=ref(null)
+                    let itemRefs = ref({}); // 创建一个 refs 对象来存储 DOM 元素的引用
                     return {
-                        eliData,eliApp
+                        eliData,eliApp,itemRefs
                     }
                 },
                 created() {
                     this.getTwoDimensionalArrData()
-                    // setInterval(() => {
-                    //     this.shuffle()
-                    // }, 1000)
                 },
                 mounted() {
 
@@ -58,7 +55,6 @@
                     //获取二维数组数据
                     getTwoDimensionalArrData() {
                         this.eliData = elimination.getTwoDimensionalArr()
-
                     },
                     //洗牌
                     shuffle() {
@@ -66,12 +62,20 @@
                         elimination.updataShuffle()
                         this.getTwoDimensionalArrData()
                     },
+                    // 设置 ref 的函数
+                    setItemRef (id){
+                       return (el) => {
+                         if (el) {
+                           //console.log('setItemRef',id,el)
+                           this.itemRefs[id] = el;
+                         }
+                        };
+                     },
                     //鼠标按下
                     mouseDown(e, row, col) {
                         if(elimination.getElementNode([row,col])===0) return //如果是空块，则不响应
                         elimination.setIndex([row,col])
                         console.log('消除》', elimination.isrRemove())
-                        target = e.target
                         startMousePosition = [e.clientX, e.clientY]
                         //console.log('down',e)
                         this.eliApp.addEventListener('mousemove', this.mouseMove)
@@ -96,14 +100,17 @@
                         if (!elimination.getIndexData().click.length) return
                         const direction = this.getDirection(e)
                         const moveObj =elimination.getMove()
-                        //this.getMoveData(moveObj.move)
-                        if(moveObj.axis==='row'){
-                          target.style.transform = 'translateX(' + direction[0] + 'px)'
-                        }else if(moveObj.axis==='col'){
-                          target.style.transform = 'translateY(' + direction[1] + 'px)'
-                        }
-                        
-                        target.style.zIndex = 222
+                          moveObj.moveData.forEach((v)=>{
+                            const t=this.itemRefs[`i-${v[0]}-${v[1]}`]
+                            if(moveObj.axis==='row'){
+                              t.style.transform = 'translateX(' + direction[0] + 'px)'
+                            }else if(moveObj.axis==='col'){
+                              t.style.transform = 'translateY(' + direction[1] + 'px)'
+                            }
+                            t.style.zIndex = 222
+                          })
+                          
+                          
                         console.log('move')
 
                     },
@@ -135,7 +142,6 @@
                     },
                     //重置数据
                     resetData() {
-                        target = null
                         elimination.clearIndexData()
                         startMousePosition = []
                         elimination.clearMove()

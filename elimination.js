@@ -72,7 +72,8 @@ class Elimination {
   }//当前点 前后左右四个方向对应非0值的坐标
   move = ''//移动方向
   directionArr = Object.keys(this.indexData)// ['click', 'left', 'right', 'up', 'down']
-  moveData = []//当前移动块
+  moveData = []//当前移动块s
+  //moveDirStatus = false//移动方向是否变化
   constructor(num = 36, chunkSize = 10) {
     this.num = num;
     this.chunkSize = chunkSize;
@@ -224,18 +225,21 @@ class Elimination {
   }
   //设置移动方向
   setMove(move) {
+    //this.moveDirStatus = false
     if (this.move !== move) {
-      if (this.move === '') {
+      const setMoveDataFn = () => {
         this.move = move
+        //this.moveDirStatus = true
         this.getMoveData()
+      }
+      if (this.move === '') {
+        setMoveDataFn()
       } else {
         let n = this.directionArr.indexOf(this.move)
         if (n % 2 === 0 && move === this.directionArr[n - 1]) {
-          this.move = move // 1 3
-          this.getMoveData()
+          setMoveDataFn()//1 3
         } else if (n % 2 === 1 && move === this.directionArr[n + 1]) {
-          this.move = move//2 4
-          this.getMoveData()
+          setMoveDataFn()//2 4
         }
       }
     }
@@ -245,12 +249,16 @@ class Elimination {
     return {
       move: this.move,
       //移动轴线
-      axis: [this.directionArr[1], this.directionArr[2]].includes(this.move) ? 'row' : 'col' // row 同一行 col 同一列 移动 
+      axis: [this.directionArr[1], this.directionArr[2]].includes(this.move) ? 'row' : 'col', // row 同一行 col 同一列 移动 
+      //moveDirStatus: this.moveDirStatus,
+      moveData: this.moveData // 移动的数据
     }
   }
   //清除移动方向
   clearMove() {
     this.move = ''
+    //this.moveDirStatus = false
+    this.moveData = []
   }
   //根据移动方向获取哪些块可以移动
   getMoveData() {
@@ -291,10 +299,6 @@ class Elimination {
         break;
     }
     console.log('可移动的块', this.move, this.moveData)
-  }
-  //清除
-  clearMoveData() {
-    this.moveData = []
   }
 }
 // let elimination = new Elimination(36, 10)
