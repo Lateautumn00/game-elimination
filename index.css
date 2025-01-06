@@ -13,7 +13,7 @@
 }
 #eli-app{
   position: relative;
-  top:0px
+  top:50px
 }
 .row {
     display: flex;
@@ -25,13 +25,15 @@
 .col {
     width: var(--side-length);
     height: var(--side-length);
-    border: 1px solid #ccc;
+    cursor: move;
+    /* border: 1px solid #ccc; */
+    /* 设置border 要修改坐标换算x y 处  容易造成不精确问题*/
 }
 
 .drag-item {
     width: inherit;
     height: inherit;
-    position: absolute;
+    /* position: absolute; */
     z-index: 111;
 }
 

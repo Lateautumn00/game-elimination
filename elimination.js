@@ -1,3 +1,12 @@
+/*
+ * @Description: 操作类
+ * @Author: 晚秋
+ * @version: 
+ * @Date: 2025-01-01 17:28:06
+ * @LastEditors: 晚秋
+ * @LastEditTime: 2025-01-06 15:43:22
+ */
+
 //10 * 14= 140
 // {
 //     '信封': 1,
@@ -39,7 +48,6 @@
 //   }
 
 //位置为空    位置内容置为0
-
 
 // Fisher-Yates洗牌算法
 function shuffleArray(array) {

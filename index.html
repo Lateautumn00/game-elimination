@@ -14,11 +14,11 @@
 
   <body>
     <main id="app">
-      <section id="eli-app" ref="eliApp">
+      <section id="eli-app" ref="eliApp" @mousedown.stop.prevent="mouseDown">
         <div v-for="(item, index) in eliData" :key="index" class="row" :class="'row-' + index">
-          <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' + index1">
-            <div class="drag-item" :class="'div-' + item1" :ref="setItemRef('i-'+index+'-'+index1)"
-              @mousedown.stop.prevent="mouseDown($event, index, index1)">
+          <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' + index1"
+            :class="'col-' +index+'-'+ index1">
+            <div class="drag-item" :class="'div-' + item1" :ref="setItemRef('i-'+index+'-'+index1)">
               {{item1}}
             </div>
           </div>
@@ -37,19 +37,25 @@
       createApp(
         {
           setup() {
-            const message = ref('11Hello Vue!')
             let eliData = ref([])
             let eliApp = ref(null)
+            let balckSideLength = ref(0)//小块的宽度   就是css的--side-length
+            let offsetData = ref({
+              start: [],
+              end: [],
+            })//元素的最小坐标 和最大坐标
             let itemRefs = ref({}); // 创建一个 refs 对象来存储 DOM 元素的引用
             return {
-              eliData, eliApp, itemRefs
+              eliData, eliApp, itemRefs, offsetData
             }
           },
           created() {
             this.getTwoDimensionalArrData()
           },
           mounted() {
-
+            this.offsetData.start = [this.eliApp.offsetLeft, this.eliApp.offsetTop]
+            this.offsetData.end = [this.eliApp.offsetLeft + this.eliApp.offsetWidth, this.eliApp.offsetTop + this.eliApp.offsetHeight]
+            this.balckSideLength = this.itemRefs['i-0-0'].offsetWidth//获取第一个小块的宽度
           },
 
           methods: {
@@ -67,13 +73,13 @@
             setItemRef(id) {
               return (el) => {
                 if (el) {
-                  //console.log('setItemRef',id,el)
                   this.itemRefs[id] = el;
                 }
               };
             },
             //鼠标按下
-            mouseDown(e, row, col) {
+            mouseDown(e) {
+              const [row, col] = this.getColAndRow(e.clientX, e.clientY)//传入坐标 换算 第几个块
               if (elimination.getElementNode([row, col]) === 0) return //如果是空块，则不响应
               elimination.setIndex([row, col])//设置当前点击的y轴和x轴
               //获取当前点 前后左右 是否有可消除的
@@ -99,34 +105,69 @@
             },
             //鼠标移动
             mouseMove(e) {
-
-              //e.preventDefault()
+              //console.log(111, e)
+              e.preventDefault()
               if (!elimination.getClickIndexData().length) return
               const direction = this.getDirection(e)
               const moveObj = elimination.getMove()
-              moveObj.moveData.forEach((v, i) => {
+              if (this.checkLastEle(moveObj, e)) {
+                this.resetData()
+                return
+              } // 判断最后一个元素是否越位
+              for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
+                const v = moveObj.moveData[i]
                 const t = this.itemRefs[`i-${v[0]}-${v[1]}`]
-                if (i === moveObj.moveData.length - 1) {
-
-                  //如果是最后一个元素   判断有没有越位
-                  if (moveObj.axis === 'row') {
-                    //判断是否超过下限 上限
-                  } else if (moveObj.axis === 'col') {
-                    //判断是否超过左边 右边
-                  }
-
-                  //如果是最后一个元素   判断有没有越位
-                  //console.log('last:', t, t.offsetLeft, t.offsetTop, t.offsetWidth, t.offsetHeight, t.style)
-                }
-
                 t.style.transform = moveObj.axis === 'col' ? 'translateX(' + direction[0] + 'px)' : 'translateY(' + direction[1] + 'px)'
                 t.style.zIndex = 222
-
-              })
-
-              //console.log('moveData', moveObj.moveData, moveObj.moveData.at(-1))
-              //console.log('move', e.clientX, e.clientY)
-
+              }
+            },
+            //判断最后一个元素是否越位
+            checkLastEle(moveObj, e) {
+              let status = false //false 没有越位  true 有越位  默认没有越位
+              //如果是最后一个元素   判断有没有越位
+              if (moveObj.moveData.length === 0) return status
+              const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e)
+              if (JSON.stringify(pos) === JSON.stringify(elimination.getClickIndexData())) return status //防止还未移出当前位置，就触发移出事件，误判结果
+              if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
+                console.error('越位了')
+                status = true
+              }
+              if (elimination.getElementNode(pos) > 0) {
+                console.error('值不为0 ,越位了')
+                status = true
+              }
+              return status
+            },
+            /**
+             * 根据当前快 坐标换算 哪个方向的第几块 坐标 对应的 位置
+             * @param {Object} move 移动的快方向
+             * @param {Number} n 移动的快方向的第几块 从当前移动块之后的块 开始数
+             * @param {Number} e 移动的快
+             */
+            getCoordinateToPosition(move, n, e) {
+              //console.log('get', move, n, e)
+              let s = []
+              if (move === elimination.getDirectionArr()[1]) {
+                //left
+                s = [e.clientX - n * this.balckSideLength - e.offsetX, e.clientY]
+              } else if (move === elimination.getDirectionArr()[2]) {
+                //right
+                s = [e.clientX + n * this.balckSideLength + (this.balckSideLength - e.offsetX), e.clientY]
+              } else if (move === elimination.getDirectionArr()[3]) {
+                //up
+                s = [e.clientX, e.clientY - n * this.balckSideLength - e.offsetY]
+              } else if (move === elimination.getDirectionArr()[4]) {
+                //down
+                s = [e.clientX, e.clientY + n * this.balckSideLength + (this.balckSideLength - e.offsetY)]
+              }
+              //console.log(s, this.getColAndRow(s[0], s[1]))
+              return this.getColAndRow(s[0], s[1])
+            },
+            getColAndRow(x, y) {
+              let col = 0, row = 0
+              col = Math.ceil((x - this.offsetData.start[0]) / this.balckSideLength) - 1
+              row = Math.ceil((y - this.offsetData.start[1]) / this.balckSideLength) - 1
+              return [row, col]
             },
             //判断移动方向
             getDirection(e) {
@@ -164,14 +205,6 @@
               this.eliApp.removeEventListener('mouseup', this.mouseUp)
               this.eliApp.removeEventListener('mouseleave', this.mouseLeave)
             },
-            //判断是否超出范围
-            // isOutRange(row, col) {}
-            //判断可移动范围
-            // 获取可以一起移动的数据 
-            // getMoveData() {
-            //   elimination.getMoveData()
-            //     //console.log('getMoveData', direction,elimination.getIndexData())
-            // }
           }
         }).mount('#app')
     </script>
