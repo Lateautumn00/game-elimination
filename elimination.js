@@ -4,7 +4,7 @@
  * @version: 
  * @Date: 2025-01-01 17:28:06
  * @LastEditors: 晚秋
- * @LastEditTime: 2025-01-06 15:43:22
+ * @LastEditTime: 2025-01-07 11:47:56
  */
 
 //10 * 14= 140
@@ -82,6 +82,7 @@ class Elimination {
   move = ''//移动方向
   directionArr = Object.keys(this.indexData)// ['click', 'left', 'right', 'up', 'down']
   moveData = []//当前移动块s
+  removeData = []
   //moveDirStatus = false//移动方向是否变化
   constructor(num = 36, chunkSize = 10) {
     this.num = num;
@@ -113,7 +114,7 @@ class Elimination {
       [5, 33, 34, 10, 11, 0, 18, 32, 31, 20],
       [34, 27, 11, 22, 7, 0, 23, 28, 5, 17],
       [12, 16, 12, 5, 15, 0, 15, 20, 26, 35],
-      [16, 35, 24, 24, 21, 0, 34, 33, 29, 27],
+      [16, 24, 24, 24, 21, 0, 34, 33, 29, 27],
       [5, 17, 32, 25, 31, 0, 29, 25, 11, 26],
       [23, 2, 8, 16, 14, 0, 22, 1, 36, 32],
       [32, 6, 31, 8, 11, 0, 19, 22, 35, 4]
@@ -159,16 +160,15 @@ class Elimination {
   }
   //设置某个位置的数据
   setElementNode(indexArr, value) {
-    const rowData = this.twoDimensionalArr[indexArr[0]];
-    rowData[indexArr[1]] = value;
+    this.twoDimensionalArr[indexArr[0]][indexArr[1]] = value;
+    this.twoDimensionalArr = [...this.twoDimensionalArr]
   }
   //获取点的数据
   getElementNode(indexArr) {
     if (indexArr[0] < 0 || indexArr[0] >= this.twoDimensionalArr.length) return -1;
     if (indexArr[1] < 0 || indexArr[1] >= this.chunkSize) return -1;
-    const rowData = this.twoDimensionalArr[indexArr[0]];
     //console.log(123, indexArr, rowData)
-    return rowData[indexArr[1]];
+    return this.twoDimensionalArr[indexArr[0]][indexArr[1]];
   }
   //设置当前点 并获取前后左右元素坐标
   setIndexData(indexArr) {
@@ -180,14 +180,27 @@ class Elimination {
     this.getRowDatas()//更新对应的left right  0 跳过
     this.getColDatas()//更新对应的up down  0 跳过
   }
-  //判断当前点与上下左右四个方向是否有相同的元素消除
+  //获取当前点四个方向可消除的坐标点
   isrRemove() {
-    return {
-      left: [...this.indexData.left, this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)],
-      right: [...this.indexData.right, this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)],
-      up: [...this.indexData.up, this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)],
-      down: [...this.indexData.down, this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)]
+    if (this.removeData.length > 0) return this.removeData
+    let arr = []
+    if (this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)) {
+      arr.push(this.indexData.left)
     }
+    if (this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)) {
+      arr.push(this.indexData.right)
+    }
+    if (this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)) {
+      arr.push(this.indexData.up)
+    }
+    if (this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)) {
+      arr.push(this.indexData.down)
+    }
+    this.removeData = arr
+    return arr
+  }
+  clearIsRemove() {
+    this.removeData = []
   }
   //获取当前点击元素的周围值
   getIndexData() {
