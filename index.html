@@ -168,9 +168,7 @@
                 elimination.setElementNode(data, node)
                 elimination.setElementNode(v, 0)
                 //复位
-                const t = this.itemRefs[`i-${v[0]}-${v[1]}`]
-                t.style.transform = moveObj.axis === 'col' ? 'translateX(0px)' : 'translateY(0px)'
-                t.style.zIndex = 111
+                this.updatePosition(v, moveObj.axis, [0, 0], 111)
                 if (i === 0) {
                   firstArr = data
                 }
@@ -204,11 +202,18 @@
                 return
               } // 判断最后一个元素是否越位
               for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
-                const v = moveObj.moveData[i]
-                const t = this.itemRefs[`i-${v[0]}-${v[1]}`]
-                t.style.transform = moveObj.axis === 'col' ? 'translateX(' + direction[0] + 'px)' : 'translateY(' + direction[1] + 'px)'
-                t.style.zIndex = 222
+                this.updatePosition(moveObj.moveData[i], moveObj.axis, direction, 222)
               }
+            },
+            /**
+             * @description: 移动位置
+             * @param {位置} arr
+             * @return {*}
+             */
+            updatePosition(arr, axis, distance = [], zIndex = 222) {
+              const t = this.itemRefs[`i-${arr[0]}-${arr[1]}`]
+              t.style.transform = axis === 'col' ? 'translateX(' + distance[0] + 'px)' : 'translateY(' + distance[1] + 'px)'
+              t.style.zIndex = zIndex
             },
             //判断最后一个元素是否越位
             checkLastEle(moveObj, e) {
@@ -220,10 +225,17 @@
               if (JSON.stringify(pos) === JSON.stringify(elimination.getClickIndexData())) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
+                moveObj.moveData.forEach(v => {
+                  this.updatePosition(v, moveObj.axis, [0, 0], 111)
+                })
+
                 status = true
               }
               if (elimination.getElementNode(pos) > 0) {
                 console.error('值不为0 ,越位了')
+                moveObj.moveData.forEach(v => {
+                  this.updatePosition(v, moveObj.axis, [0, 0], 111)
+                })
                 status = true
               }
               return status
