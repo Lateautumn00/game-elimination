@@ -124,6 +124,7 @@
             },
             //鼠标按下
             mouseDown(e) {
+              e.preventDefault()
               const [row, col] = this.getColAndRow(e.clientX, e.clientY)//传入坐标 换算 第几个块
               if (elimination.getElementNode([row, col]) === 0) return //如果是空块，则不响应
               elimination.setIndex([row, col])//设置当前点击的y轴和x轴
@@ -138,13 +139,49 @@
             //鼠标移出
             mouseLeave(e) {
               //console.log('leave')
+              e.preventDefault()
               if (!elimination.getClickIndexData().length) return
               this.resetData()
             },
             //鼠标松开
             mouseUp(e) {
               // console.log('up', e.clientX, e.clientY)
+              e.preventDefault()
               if (!elimination.getClickIndexData().length) return
+              let firstArr = []//记录第一个点的位置
+              const moveObj = elimination.getMove()
+              let moveData = []//移动前的值
+              let newObj = []//新的位置
+              for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
+                const v = moveObj.moveData[i]
+                let data = this.getCoordinateToPosition(moveObj.move, i, e)
+                let node = elimination.getElementNode(v)
+                moveData.push(node)
+                newObj.push(data)
+                elimination.setElementNode(data, node)
+                elimination.setElementNode(v, 0)
+                //复位
+                const t = this.itemRefs[`i-${v[0]}-${v[1]}`]
+                t.style.transform = moveObj.axis === 'col' ? 'translateX(0px)' : 'translateY(0px)'
+                t.style.zIndex = 111
+                if (i === 0) {
+                  firstArr = data
+                }
+              }
+              this.getTwoDimensionalArrData()
+              //获取当前的位置
+              //获取当前周围的点
+              const isrd = this.getSelection(firstArr)
+              console.log('可消除的点up-isr', isrd)
+              //如果没有可以消除的点就将其还原 复位
+              if (isrd.length === 0) {
+                moveObj.moveData.map((v, i) => {
+                  elimination.setElementNode(v, moveData[i])
+                })
+                newObj.map(v => {
+                  elimination.setElementNode(v, 0)
+                })
+              }
               this.resetData()
             },
             //鼠标移动
@@ -152,6 +189,7 @@
               //console.log(111, e)
               e.preventDefault()
               if (!elimination.getClickIndexData().length) return
+              console.log('move后')
               const direction = this.getDirection(e)
               const moveObj = elimination.getMove()
               if (this.checkLastEle(moveObj, e)) {
@@ -171,7 +209,7 @@
               //如果是最后一个元素   判断有没有越位
               if (moveObj.moveData.length === 0) return status
               const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e)
-              console.log('check', pos, elimination.getElementNode(pos))
+              //console.log('check', pos, elimination.getElementNode(pos))
               if (JSON.stringify(pos) === JSON.stringify(elimination.getClickIndexData())) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
@@ -191,6 +229,7 @@
              */
             getCoordinateToPosition(move, n, e) {
               //console.log('get', move, n, e)
+              if (n === 0) return this.getColAndRow(e.clientX, e.clientY)
               let s = []
               if (move === elimination.getDirectionArr()[1]) {
                 //left
