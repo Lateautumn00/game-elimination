@@ -4,7 +4,7 @@
  * @version: 
  * @Date: 2025-01-01 17:28:06
  * @LastEditors: 晚秋
- * @LastEditTime: 2025-01-07 14:19:15
+ * @LastEditTime: 2025-01-07 15:22:25
  */
 
 //10 * 14= 140
@@ -172,6 +172,7 @@ class Elimination {
   }
   //设置当前点 并获取前后左右元素坐标
   setIndexData(indexArr) {
+    if (indexArr.length !== 2) throw new Error("参数错误")
     this.indexData.click = [...indexArr]//设置当前点击的坐标
     this.indexData.left = [...indexArr]//初始化对应的left
     this.indexData.right = [...indexArr]//初始化对应的right

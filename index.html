@@ -81,7 +81,7 @@
             getSelection(currentArr) {
               elimination.setIndexData(currentArr)
               const isr = elimination.isrRemove() //一个元素 默认消除，多个元素要手动选择一个消除点
-              //console.log('可消除的点', isr)
+              console.log('可消除的点isr', isr)
               if (isr.length === 1) {
                 this.removeData(currentArr, isr[0])
               } else if (isr.length > 1) {
@@ -147,9 +147,16 @@
             mouseUp(e) {
               // console.log('up', e.clientX, e.clientY)
               e.preventDefault()
-              if (!elimination.getClickIndexData().length) return
-              let firstArr = []//记录第一个点的位置
+              if (!elimination.getClickIndexData().length) {
+                this.resetData()
+                return
+              }
               const moveObj = elimination.getMove()
+              if (moveObj.moveData.length === 0) {
+                this.resetData()
+                return
+              }
+              let firstArr = []//记录第一个点的位置
               let moveData = []//移动前的值
               let newObj = []//新的位置
               for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
