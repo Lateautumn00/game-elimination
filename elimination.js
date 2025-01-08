@@ -4,7 +4,7 @@
  * @version: 
  * @Date: 2025-01-01 17:28:06
  * @LastEditors: 晚秋
- * @LastEditTime: 2025-01-08 12:43:25
+ * @LastEditTime: 2025-01-08 13:27:14
  */
 
 //10 * 14= 140
@@ -70,7 +70,7 @@ function shuffleArray(array) {
 class Elimination {
   num = 36;  //多少种类块
   chunkSize = 10;//每行多少块
-  twoDimensionalArr = [];//初始化生成的二维数组
+  eliData = [];//初始化生成的二维数组
   clickIndexData = []//当前点击的点
   indexData = {
     click: [],
@@ -100,10 +100,10 @@ class Elimination {
     while (arr.length > 0) {
       arr2.push(arr.splice(0, this.chunkSize))
     }
-    this.twoDimensionalArr = arr2
-    //console.log(this.twoDimensionalArr)
-    //return this.twoDimensionalArr;
-    this.twoDimensionalArr = [
+    this.eliData = arr2
+    //console.log(this.eliData)
+    //return this.eliData;
+    this.eliData = [
       [13, 20, 9, 35, 24, 0, 24, 29, 30, 23],
       [29, 20, 17, 21, 1, 30, 16, 14, 21, 6],
       [36, 24, 18, 19, 13, 0, 30, 28, 26, 12],
@@ -135,7 +135,7 @@ class Elimination {
    * 设置当前点击的坐标  位置从0开始
    */
   setIndex(indexArr) {
-    if (indexArr[0] < 0 || indexArr[0] > this.twoDimensionalArr.length) {
+    if (indexArr[0] < 0 || indexArr[0] > this.eliData.length) {
       throw new Error("行超出范围")
     }
     if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) {
@@ -150,25 +150,25 @@ class Elimination {
    * @returns 
    */
   updataShuffle() {
-    let arr = shuffleArray(this.twoDimensionalArr.flat())
+    let arr = shuffleArray(this.eliData.flat())
     let arr2 = []
     while (arr.length > 0) {
       arr2.push(arr.splice(0, this.chunkSize))
     }
-    this.twoDimensionalArr = arr2
-    //console.log(this.twoDimensionalArr)
+    this.eliData = arr2
+    //console.log(this.eliData)
   }
   //设置某个位置的数据
   setElementNode(indexArr, value) {
-    this.twoDimensionalArr[indexArr[0]][indexArr[1]] = value;
-    this.twoDimensionalArr = [...this.twoDimensionalArr]
+    this.eliData[indexArr[0]][indexArr[1]] = value;
+    this.eliData = [...this.eliData]
   }
   //获取点的数据
   getElementNode(indexArr) {
-    if (indexArr[0] < 0 || indexArr[0] >= this.twoDimensionalArr.length) return -1;
+    if (indexArr[0] < 0 || indexArr[0] >= this.eliData.length) return -1;
     if (indexArr[1] < 0 || indexArr[1] >= this.chunkSize) return -1;
     //console.log(123, indexArr, rowData)
-    return this.twoDimensionalArr[indexArr[0]][indexArr[1]];
+    return this.eliData[indexArr[0]][indexArr[1]];
   }
   //设置当前点 并获取前后左右元素坐标
   setIndexData(indexArr) {
@@ -240,13 +240,13 @@ class Elimination {
 
     do {
       this.indexData.down[0] += 1
-    } while (this.indexData.down[0] < this.twoDimensionalArr.length && this.getElementNode(this.indexData.down) === 0)
+    } while (this.indexData.down[0] < this.eliData.length && this.getElementNode(this.indexData.down) === 0)
     //console.log(this.indexData)
   }
   //判断消除后 是否还有可消除的部分 包含未移动的部分
   //获取当前的二维数组
   getTwoDimensionalArr() {
-    return this.twoDimensionalArr;
+    return this.eliData;
   }
 
   //设置移动方向
@@ -316,7 +316,7 @@ class Elimination {
         break;
       case this.directionArr[4]:
         pointer = this.clickIndexData[0]
-        while (pointer < this.twoDimensionalArr.length && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
+        while (pointer < this.eliData.length && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
           this.moveData.push([pointer, this.clickIndexData[1]])
           pointer += 1
         }
@@ -330,7 +330,7 @@ class Elimination {
   getMoreNode(indexArr) {
     let data = this.getElementNode(indexArr)
     let arr = []
-    this.twoDimensionalArr.forEach((item, index) => {
+    this.eliData.forEach((item, index) => {
       item.forEach((item2, index2) => {
         if (item2 === data) {
           arr.push([index, index2])
@@ -342,9 +342,4 @@ class Elimination {
     return arr
   }
 }
-// let elimination = new Elimination(36, 10)
-// elimination.setIndex(1, 5)
-
-// elimination.isrRemove()
-//elimination.updataShuffle()
 export default Elimination

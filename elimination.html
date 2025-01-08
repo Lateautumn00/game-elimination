@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="./index.css">
+    </link>
+
+  </head>
+
+  <body>
+    <main id="app">
+      <section id="eli-app" ref="eliApp" @mousedown.stop.prevent="mouseDown">
+        <div v-for="(item, index) in eliData" :key="index" class="row" :class="'row-' + index">
+          <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' + index1"
+            :class="'col-' +index+'-'+ index1">
+            <div class="drag-item" :class="'div-' + item1" :ref="setItemRef('i-'+index+'-'+index1)">
+              {{item1}}
+            </div>
+          </div>
+        </div>
+      </section>
+      <button @click="updataShuffle">洗牌</button>
+    </main>
+
+
+    <script type="module">
+      import { createApp, ref, nextTick, reactive } from './vue.esm-browser.js'
+      //import Elimination from './elimination.js'
+      createApp(
+        {
+          setup() {
+            let startMousePosition = [] //开始鼠标位置
+            let time1 = ref()
+            let eliData = ref([])
+            let eliApp = ref(null)
+            let balckSideLength = ref(0)//小块的宽度   就是css的--side-length
+            let offsetData = ref({
+              start: [],
+              end: [],
+            })//元素的最小坐标 和最大坐标
+            let itemRefs = ref({}); // 创建一个 refs 对象来存储 DOM 元素的引用
+            let num = 36;  //多少种类块
+            let chunkSize = 10;//每行多少块
+            let clickIndexData = []//当前点击的点
+            let indexData = {
+              click: [],
+              left: [],
+              right: [],
+              up: [],
+              down: []
+            }//当前点 前后左右四个方向对应非0值的坐标
+            let move = ''//移动方向
+            let directionArr = Object.keys(indexData)// ['click', 'left', 'right', 'up', 'down']
+            let moveData = []//当前移动块s
+            let removesData = []
+            return {
+              eliData, eliApp, itemRefs, offsetData, time1, startMousePosition, num,
+              chunkSize, clickIndexData, indexData, move, directionArr, moveData, removesData,
+            }
+          },
+          created() {
+            this.init()
+          },
+          mounted() {
+            this.offsetData.start = [this.eliApp.offsetLeft, this.eliApp.offsetTop]
+            this.offsetData.end = [this.eliApp.offsetLeft + this.eliApp.offsetWidth, this.eliApp.offsetTop + this.eliApp.offsetHeight]
+            this.balckSideLength = this.itemRefs['i-0-0'].offsetWidth//获取第一个小块的宽度
+          },
+
+          methods: {
+            /**
+             * @description: Fisher-Yates洗牌算法
+             * @param {*} array
+             * @return {*}
+             */
+            shuffleArray(array) {
+              for (let i = array.length - 1; i > 0; i--) {
+                // 生成一个0到i之间的随机索引
+                const j = Math.floor(Math.random() * (i + 1));
+                // 交换元素
+                [array[i], array[j]] = [array[j], array[i]];
+              }
+              return array;
+            },
+            /**
+             * @description: 初始化
+             * @return {*}
+             */
+            init() {
+              let arr = Array.from({ length: this.num }, (_, i) => i + 1);// 创建一个包含1到36的数组
+              arr = this.shuffleArray(arr);// 打乱数组
+              arr = arr.flatMap((item, index) => Array(index < 3 ? 6 : index < 8 ? 2 : 4).fill(item));// 根据条件重复元素
+              arr = this.shuffleArray(arr);//再次打乱
+              // 将一维数组分成二维数组，每组n个元素
+              let arr2 = []
+              while (arr.length > 0) {
+                arr2.push(arr.splice(0, this.chunkSize))
+              }
+              this.eliData = arr2
+              //console.log(this.eliData)
+              //return this.eliData;
+              this.eliData = [
+                [13, 20, 9, 35, 24, 0, 24, 29, 30, 23],
+                [29, 20, 17, 21, 1, 30, 16, 14, 21, 6],
+                [36, 24, 18, 19, 13, 0, 30, 28, 26, 12],
+                [18, 3, 1, 10, 19, 30, 27, 4, 24, 30],
+                [28, 29, 31, 2, 34, 0, 19, 36, 6, 26],
+                [1, 17, 13, 23, 3, 0, 9, 27, 2, 13],
+                [36, 7, 19, 28, 7, 0, 7, 25, 25, 21],
+                [5, 33, 0, 10, 11, 0, 30, 32, 31, 20],
+                [34, 27, 11, 22, 7, 0, 23, 28, 5, 17],
+                [12, 16, 12, 5, 15, 0, 15, 20, 26, 35],
+                [16, 24, 24, 24, 21, 0, 34, 33, 29, 27],
+                [5, 17, 32, 25, 31, 0, 29, 25, 11, 26],
+                [23, 2, 8, 16, 14, 0, 22, 1, 36, 32],
+                [32, 6, 31, 8, 11, 0, 19, 22, 35, 4]
+              ]
+            },
+            /**
+             * @description: 设置当前点击的坐标  位置从0开始
+             * @param {*} indexArr
+             * @return {*}
+             */
+            setIndex(indexArr) {
+              if (indexArr[0] < 0 || indexArr[0] > this.eliData.length) {
+                throw new Error("行超出范围")
+              }
+              if (indexArr[1] < 0 || indexArr[1] > this.chunkSize) {
+                throw new Error("列超出范围")
+              }
+              this.clickIndexData = [...indexArr]
+
+            },
+            /**
+             * @description: 洗牌 随机打乱当前已存在的二维数组
+             * @return {*}
+             */
+            updataShuffle() {
+              let arr = this.shuffleArray(this.eliData.flat())
+              let arr2 = []
+              while (arr.length > 0) {
+                arr2.push(arr.splice(0, this.chunkSize))
+              }
+              this.eliData = arr2
+            },
+            /**
+             * @description: 设置某个位置的数据
+             * @param {*} indexArr
+             * @param {*} value
+             * @return {*}
+             */
+            setElementNode(indexArr, value) {
+              this.eliData[indexArr[0]][indexArr[1]] = value;
+              this.eliData = [...this.eliData]
+            },
+            /**
+             * @description: 获取点的数据
+             * @param {*} indexArr
+             * @return {*}
+             */
+            getElementNode(indexArr) {
+              if (indexArr[0] < 0 || indexArr[0] >= this.eliData.length) return -1;
+              if (indexArr[1] < 0 || indexArr[1] >= this.chunkSize) return -1;
+              //console.log(123, indexArr, rowData)
+              return this.eliData[indexArr[0]][indexArr[1]];
+            },
+
+            /**
+             * @description: 设置当前点 并获取前后左右元素坐标
+             * @param {*} indexArr
+             * @return {*}
+             */
+            setIndexData(indexArr) {
+              if (indexArr.length !== 2) throw new Error("参数错误")
+              this.indexData.click = [...indexArr]//设置当前点击的坐标
+              this.indexData.left = [...indexArr]//初始化对应的left
+              this.indexData.right = [...indexArr]//初始化对应的right
+              this.indexData.up = [...indexArr]//初始化对应的up
+              this.indexData.down = [...indexArr]//初始化对应的down
+              this.getRowDatas()//更新对应的left right  0 跳过
+              this.getColDatas()//更新对应的up down  0 跳过
+            },
+
+            /**
+             * @description: 获取当前点四个方向可消除的坐标点
+             * @return {*}
+             */
+            isrRemove() {
+              if (this.removesData.length > 0) return this.removesData
+              let arr = []
+              if (this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)) {
+                arr.push(this.indexData.left)
+              }
+              if (this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)) {
+                arr.push(this.indexData.right)
+              }
+              if (this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)) {
+                arr.push(this.indexData.up)
+              }
+              if (this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)) {
+                arr.push(this.indexData.down)
+              }
+              this.removesData = arr
+              return arr
+            },
+
+            /**
+             * @description: 更新click 对应的left right
+             * @return {*}
+             */
+            getRowDatas() {
+              //向左移动指针
+              do {
+                this.indexData.left[1] -= 1
+              } while (this.indexData.left[1] >= 0 && this.getElementNode(this.indexData.left) === 0)
+              //向右移动指针
+              do {
+                this.indexData.right[1] += 1
+              } while (this.indexData.right[1] < this.chunkSize && this.getElementNode(this.indexData.right) === 0)
+            },
+            /**
+             * @description: 判断同一列是否还有可消除的
+             * @return {*}
+             */
+            getColDatas() {
+              //向上移动指针
+              do {
+                this.indexData.up[0] -= 1
+              } while (this.indexData.up[0] >= 0 && this.getElementNode(this.indexData.up) === 0)
+              //向下移动指针
+
+              do {
+                this.indexData.down[0] += 1
+              } while (this.indexData.down[0] < this.eliData.length && this.getElementNode(this.indexData.down) === 0)
+              //console.log(this.indexData)
+            },
+
+            /**
+             * @description: 获取移动方向 及 轴
+             * @return {*}
+             */
+            getMove() {
+              return {
+                move: this.move,
+                //移动轴线
+                axis: [this.directionArr[3], this.directionArr[4]].includes(this.move) ? 'row' : 'col', // 上下移动的是移动的行  左右移动是移动的列
+                //moveDirStatus: this.moveDirStatus,
+                moveData: this.moveData // 移动的数据
+              }
+            },
+
+            //获取与某个值相等的所有的坐标
+            getMoreNode(indexArr) {
+              let data = this.getElementNode(indexArr)
+              let arr = []
+              this.eliData.forEach((item, index) => {
+                item.forEach((item2, index2) => {
+                  if (item2 === data) {
+                    arr.push([index, index2])
+                    const t = this.itemRefs[`i-${index}-${index2}`]
+                    t.style.color = 'red'
+                  }
+                })
+              })
+              //1秒钟后消除
+              setTimeout(() => {
+                arr.forEach(element => {
+                  const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                  t.style.color = null
+                  clearTimeout(this.time1)
+                })
+              }, 1000)
+              return arr
+            },
+            /**
+             * @description: 设置 ref 的函数
+             * @param {*} id
+             * @return {*}
+             */
+            setItemRef(id) {
+              return (el) => {
+                if (el) {
+                  this.itemRefs[id] = el;
+                }
+              };
+            },
+
+            /**
+             * @description: 判断是否有可消除的点块
+             * @param {*} currentArr
+             * @return {*}
+             */
+            getSelection(currentArr) {
+              this.setIndexData(currentArr)
+              const isr = this.isrRemove() //一个元素 默认消除，多个元素要手动选择一个消除点
+              console.log('可消除的点isr', isr)
+              if (isr.length === 1) {
+                this.removeData(currentArr, isr[0])
+              } else if (isr.length > 1) {
+                isr.forEach(element => {
+                  const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                  t.style.color = 'red'
+                  t.addEventListener('click', (e) => {
+                    e.stopPropagation()
+                    console.log(2, '消除事件')
+                    this.removeData(currentArr, element)
+                  })
+                });
+              }
+              return isr;
+            },
+
+            /**
+             * @description: 消除
+             * @param {当前点} currentArr
+             * @param {需要一起消除的点} selectedArr 
+             * @return {*}
+             */
+            removeData(currentArr, selectedArr) {
+              console.log('消除', currentArr, selectedArr)
+              this.setElementNode(currentArr, 0)
+              this.setElementNode(selectedArr, 0)
+              //this.getTwoDimensionalArrData()
+              console.log('消除后', this.eliData)
+              const isr = this.isrRemove()
+              if (isr.length > 1) {
+                isr.forEach(element => {
+                  const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                  t.style.color = '#fff'
+                  t.removeEventListener('click', () => {
+                    console.log('消除事件移出')
+                  })
+                })
+              }
+
+              this.removesData = []//移出
+            },
+
+            /**
+             * @description: 鼠标按下
+             * @param {*} e
+             * @return {*}
+             */
+            mouseDown(e) {
+              e.preventDefault()
+              if (this.removesData.length) return
+              console.log(1)
+              const [row, col] = this.getColAndRow(e.clientX, e.clientY)//传入坐标 换算 第几个块
+              if (this.getElementNode([row, col]) === 0) return //如果是空块，则不响应
+              this.setIndex([row, col])//设置当前点击的y轴和x轴
+              //获取当前点 前后左右 是否有可消除的
+              const sel = this.getSelection([row, col])
+              if (sel.length === 0) {
+                this.time1 = setTimeout(() => {
+                  const moreNode = this.getMoreNode([row, col])
+                }, 500)
+              }
+              console.log('当前点击的点->>>>>', e)
+              this.startMousePosition = [e.clientX, e.clientY]
+              //console.log('down',e)
+              this.eliApp.addEventListener('mousemove', this.mouseMove)
+              this.eliApp.addEventListener('mouseup', this.mouseUp)
+              this.eliApp.addEventListener('mouseleave', this.mouseLeave)
+            },
+            /**
+             * @description: 移出
+             * @param {*} e
+             * @return {*}
+             */
+            mouseLeave(e) {
+              //console.log('leave')
+              e.preventDefault()
+              if (!this.clickIndexData.length) return
+              this.resetData()
+            },
+
+            /**
+             * @description: 鼠标松开
+             * @param {*} e
+             * @return {*}
+             */
+            mouseUp(e) {
+              // console.log('up', e.clientX, e.clientY)
+              e.preventDefault()
+              if (!this.clickIndexData.length) {
+                this.resetData()
+                return
+              }
+              const moveObj = this.getMove()
+              if (moveObj.moveData.length === 0) {
+                this.resetData()
+                return
+              }
+              let firstArr = []//记录第一个点的位置
+              let moveData = []//移动前的值
+              let newObj = []//新的位置
+              for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
+                const v = moveObj.moveData[i]
+                let data = this.getCoordinateToPosition(moveObj.move, i, e)
+                let node = this.getElementNode(v)
+                moveData.push(node)
+                newObj.push(data)
+                this.setElementNode(data, node)
+                this.setElementNode(v, 0)
+                //复位
+                this.updatePosition(v, moveObj.axis, [0, 0])
+                if (i === 0) {
+                  firstArr = data
+                }
+              }
+              //this.getTwoDimensionalArrData()
+              //获取当前的位置
+              //获取当前周围的点
+              const isrd = this.getSelection(firstArr)
+              console.log('可消除的点up-isr', isrd)
+              //如果没有可以消除的点就将其还原 复位
+              if (isrd.length === 0) {
+                moveObj.moveData.map((v, i) => {
+                  this.setElementNode(v, moveData[i])
+                })
+                newObj.map(v => {
+                  this.setElementNode(v, 0)
+                })
+              }
+              this.resetData()
+            },
+            /**
+             * @description: 鼠标移动
+             * @param {*} e
+             * @return {*}
+             */
+            mouseMove(e) {
+              //console.log(111, e)
+              e.preventDefault()
+              if (this.time1) clearTimeout(this.time1)
+              if (!this.clickIndexData.length) return
+              console.log('move后')
+              const direction = this.getDirection(e)
+              const moveObj = this.getMove()
+              if (this.checkLastEle(moveObj, e)) {
+                this.resetData()
+                return
+              } // 判断最后一个元素是否越位
+              for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
+                this.updatePosition(moveObj.moveData[i], moveObj.axis, direction)
+              }
+            },
+            /**
+             * @description: 移动位置
+             * @param {位置} arr
+             * @return {*}
+             */
+            updatePosition(arr, axis, distance = []) {
+              const t = this.itemRefs[`i-${arr[0]}-${arr[1]}`]
+              t.style.transform = axis === 'col' ? distance[0] === 0 ? null : `translateX(${distance[0]}px)` : distance[1] === 0 ? null : `translateY(${distance[1]}px)`
+            },
+
+            /**
+             * @description: 判断最后一个元素是否越位
+             * @param {*} moveObj
+             * @param {*} e
+             * @return {*}
+             */
+            checkLastEle(moveObj, e) {
+              let status = false //false 没有越位  true 有越位  默认没有越位
+              //如果是最后一个元素   判断有没有越位
+              if (moveObj.moveData.length === 0) return status
+              const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e)
+              console.log('check', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
+              if (JSON.stringify(pos) === JSON.stringify(this.clickIndexData)) return status //防止还未移出当前位置，就触发移出事件，误判结果
+              if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
+                console.error('越位了')
+                moveObj.moveData.forEach(v => {
+                  this.updatePosition(v, moveObj.axis, [0, 0])
+                })
+                status = true
+              }
+              if (this.getElementNode(pos) > 0) {
+                console.error('值不为0 ,越位了')
+                moveObj.moveData.forEach(v => {
+                  this.updatePosition(v, moveObj.axis, [0, 0])
+                })
+                status = true
+              }
+              return status
+            },
+            /**
+             * 根据当前快 坐标换算 哪个方向的第几块 坐标 对应的 位置
+             * @param {Object} move 移动的快方向
+             * @param {Number} n 移动的快方向的第几块 从当前移动块之后的块 开始数
+             * @param {Number} e 移动的快
+             */
+            getCoordinateToPosition(move, n, e) {
+              console.log('get', move, n, e)
+              if (n === 0) return this.getColAndRow(e.clientX, e.clientY)
+              let s = []
+
+              if (move === this.directionArr[1]) {
+                //left
+                s = [e.clientX - n * this.balckSideLength - e.offsetX, e.clientY]
+              } else if (move === this.directionArr[2]) {
+                //right
+                s = [e.clientX + n * this.balckSideLength + (this.balckSideLength - e.offsetX), e.clientY]
+              } else if (move === this.directionArr[3]) {
+                //up
+                s = [e.clientX, e.clientY - n * this.balckSideLength - e.offsetY]
+              } else if (move === this.directionArr[4]) {
+                //down
+                s = [e.clientX, e.clientY + n * this.balckSideLength + (this.balckSideLength - e.offsetY)]
+              }
+              //console.log(s, this.getColAndRow(s[0], s[1]))
+              return this.getColAndRow(s[0], s[1])
+            },
+            /**
+             * @description: 将坐标换算成某个位置
+             * @param {*} x
+             * @param {*} y
+             * @return {*}
+             */
+            getColAndRow(x, y) {
+              let col = Math.ceil((x - this.offsetData.start[0]) / this.balckSideLength) - 1
+              let row = Math.ceil((y - this.offsetData.start[1]) / this.balckSideLength) - 1
+              return [row, col]
+            },
+            /**
+             * @description: 判断移动方向
+             * @param {*} e
+             * @return {*}
+             */
+            getDirection(e) {
+              let direction = ''
+              const deltaX = e.clientX - this.startMousePosition[0]
+              const deltaY = e.clientY - this.startMousePosition[1]
+              if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 0) {
+                  //console.log('Moving right')
+                  direction = this.directionArr[2]
+                } else {
+                  //console.log('Moving left')
+                  direction = this.directionArr[1]
+                }
+              } else {
+                if (deltaY > 0) {
+                  //console.log('Moving down')
+                  direction = this.directionArr[4]
+                } else {
+                  //console.log('Moving up')
+                  direction = this.directionArr[3]
+                }
+              }
+              //console.log('direction', direction)
+              if (Math.abs(deltaX) >= 20 || Math.abs(deltaY) >= 20) this.setMove(direction)// 判断是否移动超过10px 不超过则不移动
+              return [deltaX, deltaY]
+            },
+
+            /**
+             * @description: 设置移动方向
+             * @param {*} move
+             * @return {*}
+             */
+            setMove(move) {
+              //this.moveDirStatus = false
+              if (this.move !== move) {
+                const setMoveDataFn = () => {
+                  this.move = move
+                  //this.moveDirStatus = true
+                  this.getMoveData()
+                }
+                if (this.move === '') {
+                  setMoveDataFn()
+                } else {
+                  let n = this.directionArr.indexOf(this.move)
+                  if (n % 2 === 0 && move === this.directionArr[n - 1]) {
+                    setMoveDataFn()//1 3
+                  } else if (n % 2 === 1 && move === this.directionArr[n + 1]) {
+                    setMoveDataFn()//2 4
+                  }
+                }
+              }
+            },
+            /**
+             * @description: 获取移动方向上可以一起移动的块的位置
+             * @return {*}
+             */
+            getMoveData() {
+              //例如向右移动获取可以移动的块
+              let pointer = -1
+              this.moveData = []
+              //['click', 'left', 'right', 'up', 'down']
+              switch (this.move) {
+                case this.directionArr[1]:
+                  pointer = this.clickIndexData[1]
+                  while (pointer >= 0 && this.getElementNode([this.clickIndexData[0], pointer]) !== 0) {
+                    this.moveData.push([this.clickIndexData[0], pointer])
+                    pointer -= 1
+                  }
+                  break;
+                case this.directionArr[2]:
+                  pointer = this.clickIndexData[1]
+                  while (pointer < this.chunkSize && this.getElementNode([this.clickIndexData[0], pointer]) !== 0) {
+                    this.moveData.push([this.clickIndexData[0], pointer])
+                    pointer += 1
+                  }
+                  break;
+                case this.directionArr[3]:
+                  pointer = this.clickIndexData[0]
+                  while (pointer >= 0 && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
+                    this.moveData.push([pointer, this.clickIndexData[1]])
+                    pointer -= 1
+                  }
+                  break;
+                case this.directionArr[4]:
+                  pointer = this.clickIndexData[0]
+                  while (pointer < this.eliData.length && this.getElementNode([pointer, this.clickIndexData[1]]) !== 0) {
+                    this.moveData.push([pointer, this.clickIndexData[1]])
+                    pointer += 1
+                  }
+                  break;
+                default:
+                  break;
+              }
+              //console.log('可移动的块', this.move, this.moveData)
+            },
+            /**
+             * @description: 重置数据
+             * @return {*}
+             */
+            resetData() {
+              this.clickIndexData = []
+              this.startMousePosition = []
+              this.move = ''
+              //this.moveDirStatus = false
+              this.moveData = []
+              this.indexData = {
+                click: [],
+                left: [],
+                right: [],
+                up: [],
+                down: []
+              }
+              this.eliApp.removeEventListener('mousemove', this.mouseMove)
+              this.eliApp.removeEventListener('mouseup', this.mouseUp)
+              this.eliApp.removeEventListener('mouseleave', this.mouseLeave)
+            },
+          }
+        }).mount('#app')
+    </script>
+  </body>
+
+</html>
