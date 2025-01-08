@@ -340,7 +340,24 @@
 
               this.removesData = []//移出
             },
-
+            /**
+               * @description: 行列高亮   还未实现   实验中
+               * @return {*}
+               */
+            setHightLight(e) {
+              let [row, col] = this.getColAndRow([e.clientX, e.clientY])
+              let colNum = this.eliData.length;
+              let rowNum = this.chunkSize;
+              for (let i = 0; i < rowNum; i++) {
+                const t = this.itemRefs[`i-${i}-${col}`]
+                t.style.color = '#1fcf5d'
+              }
+              for (let i = 0; i < colNum; i++) {
+                const t = this.itemRefs[`i-${row}-${i}`]
+                t.style.color = '#1fcf5d'
+              }
+              console.log('高亮', row, col)
+            },
             /**
              * @description: 鼠标按下
              * @param {*} e
@@ -350,7 +367,8 @@
               e.preventDefault()
               if (this.removesData.length) return
               console.log(1)
-              const [row, col] = this.getColAndRow(e.clientX, e.clientY)//传入坐标 换算 第几个块
+              this.startMousePosition = [e.clientX, e.clientY]
+              const [row, col] = this.getColAndRow(this.startMousePosition)//传入坐标 换算 第几个块
               if (this.getElementNode([row, col]) === 0) return //如果是空块，则不响应
               this.setIndex([row, col])//设置当前点击的y轴和x轴
               //获取当前点 前后左右 是否有可消除的
@@ -361,7 +379,7 @@
                 }, 500)
               }
               console.log('当前点击的点->>>>>', e)
-              this.startMousePosition = [e.clientX, e.clientY]
+
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)
               this.eliApp.addEventListener('mouseup', this.mouseUp)
@@ -449,6 +467,7 @@
               for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
                 this.updatePosition(moveObj.moveData[i], moveObj.axis, direction)
               }
+              //this.setHightLight(e)
             },
             /**
              * @description: 移动位置
@@ -497,7 +516,7 @@
              */
             getCoordinateToPosition(move, n, e) {
               console.log('get', move, n, e)
-              if (n === 0) return this.getColAndRow(e.clientX, e.clientY)
+              if (n === 0) return this.getColAndRow([e.clientX, e.clientY])
               let s = []
 
               if (move === this.directionArr[1]) {
@@ -514,7 +533,7 @@
                 s = [e.clientX, e.clientY + n * this.balckSideLength + (this.balckSideLength - e.offsetY)]
               }
               //console.log(s, this.getColAndRow(s[0], s[1]))
-              return this.getColAndRow(s[0], s[1])
+              return this.getColAndRow(s)
             },
             /**
              * @description: 将坐标换算成某个位置
@@ -522,7 +541,7 @@
              * @param {*} y
              * @return {*}
              */
-            getColAndRow(x, y) {
+            getColAndRow([x, y]) {
               let col = Math.ceil((x - this.offsetData.start[0]) / this.balckSideLength) - 1
               let row = Math.ceil((y - this.offsetData.start[1]) / this.balckSideLength) - 1
               return [row, col]
