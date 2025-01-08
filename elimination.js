@@ -4,7 +4,7 @@
  * @version: 
  * @Date: 2025-01-01 17:28:06
  * @LastEditors: 晚秋
- * @LastEditTime: 2025-01-07 15:22:25
+ * @LastEditTime: 2025-01-08 12:43:25
  */
 
 //10 * 14= 140
@@ -325,6 +325,21 @@ class Elimination {
         break;
     }
     //console.log('可移动的块', this.move, this.moveData)
+  }
+  //获取与某个值相等的所有的坐标
+  getMoreNode(indexArr) {
+    let data = this.getElementNode(indexArr)
+    let arr = []
+    this.twoDimensionalArr.forEach((item, index) => {
+      item.forEach((item2, index2) => {
+        if (item2 === data) {
+          arr.push([index, index2])
+          //console.log(index, index2)
+        }
+      })
+    })
+    console.log(data, arr)
+    return arr
   }
 }
 // let elimination = new Elimination(36, 10)

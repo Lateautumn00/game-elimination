@@ -129,7 +129,23 @@
               if (elimination.getElementNode([row, col]) === 0) return //如果是空块，则不响应
               elimination.setIndex([row, col])//设置当前点击的y轴和x轴
               //获取当前点 前后左右 是否有可消除的
-              this.getSelection([row, col])
+              const sel = this.getSelection([row, col])
+              if (sel.length === 0) {
+                const moreNode = elimination.getMoreNode([row, col])
+                if (moreNode.length > 0) {
+                  moreNode.forEach(element => {
+                    const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                    t.style.color = 'red'
+                  })
+                  setTimeout(() => {
+                    moreNode.forEach(element => {
+                      const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                      t.style.color = null
+                    })
+                  }, 1000)
+                }
+              }
+              console.log('当前点击的点->>>>>', e)
               startMousePosition = [e.clientX, e.clientY]
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)
@@ -220,7 +236,7 @@
               //如果是最后一个元素   判断有没有越位
               if (moveObj.moveData.length === 0) return status
               const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e)
-              //console.log('check', pos, elimination.getElementNode(pos))
+              console.log('check', moveObj.move, moveObj.moveData.length - 1, pos, elimination.getElementNode(pos))
               if (JSON.stringify(pos) === JSON.stringify(elimination.getClickIndexData())) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
@@ -246,9 +262,10 @@
              * @param {Number} e 移动的快
              */
             getCoordinateToPosition(move, n, e) {
-              //console.log('get', move, n, e)
+              console.log('get', move, n, e)
               if (n === 0) return this.getColAndRow(e.clientX, e.clientY)
               let s = []
+
               if (move === elimination.getDirectionArr()[1]) {
                 //left
                 s = [e.clientX - n * this.balckSideLength - e.offsetX, e.clientY]
