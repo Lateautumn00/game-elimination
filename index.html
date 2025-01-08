@@ -34,6 +34,7 @@
       let elimination = new Elimination(36, 10)
       let target = null
       let startMousePosition = [] //开始鼠标位置
+      let time1
       createApp(
         {
           setup() {
@@ -131,19 +132,23 @@
               //获取当前点 前后左右 是否有可消除的
               const sel = this.getSelection([row, col])
               if (sel.length === 0) {
-                const moreNode = elimination.getMoreNode([row, col])
-                if (moreNode.length > 0) {
-                  moreNode.forEach(element => {
-                    const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
-                    t.style.color = 'red'
-                  })
-                  setTimeout(() => {
+                time1 = setTimeout(() => {
+                  const moreNode = elimination.getMoreNode([row, col])
+                  if (moreNode.length > 0) {
                     moreNode.forEach(element => {
                       const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
-                      t.style.color = null
+                      t.style.color = 'red'
                     })
-                  }, 1000)
-                }
+                    setTimeout(() => {
+                      moreNode.forEach(element => {
+                        const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
+                        t.style.color = null
+                        clearTimeout(time1)
+                      })
+                    }, 1000)
+                  }
+                }, 1000)
+
               }
               console.log('当前点击的点->>>>>', e)
               startMousePosition = [e.clientX, e.clientY]
@@ -209,6 +214,7 @@
             mouseMove(e) {
               //console.log(111, e)
               e.preventDefault()
+              if (time1) clearTimeout(time1)
               if (!elimination.getClickIndexData().length) return
               console.log('move后')
               const direction = this.getDirection(e)
