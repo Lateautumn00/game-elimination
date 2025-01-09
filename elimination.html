@@ -16,8 +16,7 @@
       <section id="eli-app" ref="eliApp" @mousedown.stop.prevent="mouseDown">
         <div v-for="(item, index) in eliData" :key="index" class="row" :class="'row-' + index">
           <div v-for="(item1, index1) in item" :key="index1" class="col" :class="'col-' +index+'-'+ index1">
-            <div class="drag-item" :class="'div-' + item1" :class="'col-' + index1"
-              :ref="setItemRef('i-'+index+'-'+index1)">
+            <div class="drag-item" :class="'div-' + item1" :ref="setItemRef('i-'+index+'-'+index1)">
               {{item1}}
             </div>
           </div>
@@ -262,7 +261,7 @@
                   if (item2 === data) {
                     arr.push([index, index2])
                     const t = this.itemRefs[`i-${index}-${index2}`]
-                    t.style.color = 'red'
+                    t.style.border = '2px solid rgba(255, 255, 255, 0.8)'
                   }
                 })
               })
@@ -270,7 +269,7 @@
               setTimeout(() => {
                 arr.forEach(element => {
                   const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
-                  t.style.color = null
+                  t.style.border = null
                   clearTimeout(this.time1)
                 })
               }, 1000)
@@ -303,7 +302,7 @@
               } else if (isr.length > 1) {
                 isr.forEach(element => {
                   const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
-                  t.style.color = 'red'
+                  t.style.border = '2px solid rgba(255, 255, 255, 0.8)'
                   t.addEventListener('click', (e) => {
                     e.stopPropagation()
                     console.log(2, '消除事件')
@@ -330,7 +329,7 @@
               if (isr.length > 1) {
                 isr.forEach(element => {
                   const t = this.itemRefs[`i-${element[0]}-${element[1]}`]
-                  t.style.color = '#fff'
+                  t.style.border = null
                   t.removeEventListener('click', () => {
                     console.log('消除事件移出')
                   })

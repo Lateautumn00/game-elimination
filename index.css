@@ -7,9 +7,10 @@
     box-sizing: border-box;
 }
 #app {
-    width: 400px;
+    width: fit-content;
     margin: 0 auto;
-    
+    background-color: #fff;
+    color: #fff;
 }
 #eli-app{
   position: relative;
@@ -19,27 +20,32 @@
     display: flex;
     text-align: center;
     line-height: var(--side-length);
-    color: #fff;
+    
 }
 
 .col {
     width: var(--side-length);
     height: var(--side-length);
     cursor: move;
-    /* border: 1px solid #ccc; */
-    /* 设置border 要修改坐标换算x y 处  容易造成不精确问题*/
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
 }
-
+[class^="col col-13-"]{
+  border-bottom: 1px solid #000;
+}
+[class^="col col-"][class$="-9"]:not([class="col col-13-9"]){
+  border-right: 1px solid #000;
+}
 .drag-item {
     width: inherit;
     height: inherit;
-    /* position: absolute; */
     z-index: 111;
     border-radius: 10%;
 }
 
 .div-0 {
-    background-color: #fff;
+    background-color: rgba(0,0,0,0);
+    color: rgba(0,0,0,0);
 }
 
 .div-1 {
