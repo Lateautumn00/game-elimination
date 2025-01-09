@@ -35,6 +35,7 @@
     height: inherit;
     /* position: absolute; */
     z-index: 111;
+    border-radius: 10%;
 }
 
 .div-0 {
