@@ -9,8 +9,8 @@
 #app {
     width: fit-content;
     margin: 0 auto;
-    background-color: #fff;
-    color: #fff;
+    background-color: rgba(255,255,255,1);
+    color: rgba(255,255,255,1);
 }
 #eli-app{
   position: relative;
@@ -33,7 +33,7 @@
 [class^="col col-13-"]{
   border-bottom: 1px solid #000;
 }
-[class^="col col-"][class$="-9"]:not([class="col col-13-9"]){
+[class^="col col-"][class$="-9"]{
   border-right: 1px solid #000;
 }
 .drag-item {
@@ -49,145 +49,145 @@
 }
 
 .div-1 {
-    background-color: #c10000;
+    background-color: rgba(193,0,0,1);
 }
 
 .div-2 {
-    background-color: #67c25e;
+    background-color:rgba(103,194,94,1);
 }
 
 .div-3 {
-    background-color: #c3c3c3;
+    background-color: rgba(195,195,195,1);
 }
 
 .div-4 {
-    background-color: #4d4d4d;
+    background-color: rgba(39, 157 ,105,1);
 }
 
 .div-5 {
-    background-color: #c555cc;
+    background-color: rgba(197,85,204,1);
 }
 
 .div-6 {
-    background-color: #ddd666;
+    background-color: rgba(221,214,102,1);
 }
 
 .div-7 {
-    background-color: #7777ee;
+    background-color: rgba(119,119,238,1);
 }
 
 .div-8 {
-    background-color: #cc8000;
+    background-color: rgba(204,128,0,1);
 }
 
 .div-9 {
-    background-color: #c90000;
+    background-color: rgba(126, 119, 18,1);
 }
 
 .div-10 {
-    background-color: #50107e;
+    background-color: rgba(80,16,126,1);
 }
 
 .div-11 {
-    background-color: #8f5555;
+    background-color: rgba(143,85,85,1);
 }
 
 .div-12 {
-    background-color: #cc6a6f;
+    background-color: rgba(204,106,111,1);
 }
 
 .div-13 {
-    background-color: #fd3f00;
+    background-color: rgba(253,63,0,1);
 }
 
 .div-14 {
-    background-color: #363030;
+    background-color: rgba(0,0,0,1);
 }
 
 .div-15 {
-    background-color: #301919;
+    background-color: rgba(223,8,209,1);
 }
 
 .div-16 {
-    background-color: #5986aa;
+    background-color: rgba(89,134,170,1);
 }
 
 .div-17 {
-    background-color: #11232f;
+    background-color: rgba(215,72,51,1);
 }
 
 .div-18 {
-    background-color: #200606;
+    background-color: rgba(2, 111, 121, 0.611);
 }
 
 .div-19 {
-    background-color: #1fcf5d;
+    background-color: rgba(31,207,93,1);
 }
 
 .div-20 {
-    background-color: #c52d2d;
+    background-color: rgba(197,45,45,1);
 }
 
 .div-21 {
-    background-color: #693232;
+    background-color: rgba(240,181,181,1);
 }
 
 .div-22 {
-    background-color: #2bcc2b;
+    background-color: rgba(43,204,43,1);
 }
 
 .div-23 {
-    background-color: #995757;
+    background-color: rgba(153,87,87,1);
 }
 
 .div-24 {
-    background-color: #a08989;
+    background-color: rgba(160,137,137,1);
 }
 
 .div-25 {
-    background-color: #4f1164;
+    background-color: rgba(79,17,100,1);
 }
 
 .div-26 {
-    background-color: #9d4ba6;
+    background-color: rgba(167, 153, 232,1);
 }
 
 .div-27 {
-    background-color: #5c21dc;
+    background-color: rgba(197, 23, 101,1);
 }
 
 .div-28 {
-    background-color: #a03b93;
+    background-color: rgba(160,59,147,1);
 }
 
 .div-29 {
-    background-color: #740d42;
+    background-color: rgba(116,13,66,1);
 }
 
 .div-30 {
-    background-color: #460909;
+    background-color: rgba(70,9,9,1);
 }
 
 .div-31 {
-    background-color: #2b1399;
+    background-color: rgba(43,19,153,1);
 }
 
 .div-32 {
-    background-color: #69bebe;
+    background-color: rgba(105,190,190,1);
 }
 
 .div-33 {
-    background-color: #3b2139;
+    background-color: rgba(59,33,57,1);
 }
 
 .div-34 {
-    background-color: #6f314a;
+    background-color: rgba(111,49,74,1);
 }
 
 .div-35 {
-    background-color: #473838;
+    background-color: rgba(71,56,56,1);
 }
 
 .div-36 {
-    background-color: #024c0d;
+    background-color: rgba(2,76,13,1);
 }
