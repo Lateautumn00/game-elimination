@@ -33,7 +33,7 @@
 
 
     <script type="module">
-      import { createApp, ref, nextTick, reactive } from './vue.esm-browser.js'
+      import { createApp, ref, nextTick, reactive, computed } from './vue.esm-browser.js'
       //import Elimination from './elimination.js'
       createApp(
         {
@@ -70,6 +70,13 @@
               x, y
             }
           },
+          computed: {
+            //位移至少多少距离，才移动，设置不应小于balckSideLength一半 或 大于balckSideLength
+            minDisplacement() {
+              console.log('balckSideLength', this.balckSideLength, Math.ceil(this.balckSideLength * 3 / 4))
+              return Math.ceil(this.balckSideLength * 3 / 4)
+            }
+          },
           created() {
             this.init()
           },
@@ -77,6 +84,7 @@
             this.offsetData.start = [this.eliApp.offsetLeft, this.eliApp.offsetTop]
             this.offsetData.end = [this.eliApp.offsetLeft + this.eliApp.offsetWidth, this.eliApp.offsetTop + this.eliApp.offsetHeight]
             this.balckSideLength = this.itemRefs['i-0-0'].offsetWidth//获取第一个小块的宽度
+            console.log('位移', this.displacement)
           },
 
           methods: {
@@ -599,7 +607,7 @@
                 }
               }
               //console.log('direction', direction)
-              if (Math.abs(deltaX) >= 20 || Math.abs(deltaY) >= 20) this.setMove(direction)// 判断是否移动超过10px 不超过则不移动
+              if (Math.abs(deltaX) >= this.minDisplacement || Math.abs(deltaY) >= this.minDisplacement) this.setMove(direction)// 判断是否移动超过单个块的一半 不超过则不移动 设置过小 过大 效果不友好
               return [deltaX, deltaY]
             },
 
