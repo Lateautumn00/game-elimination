@@ -296,7 +296,7 @@
             getSelection(currentArr) {
               this.setIndexData(currentArr)
               const isr = this.isrRemove() //一个元素 默认消除，多个元素要手动选择一个消除点
-              console.log('可消除的点isr', isr)
+              //console.log('可消除的点isr', isr)
               if (isr.length === 1) {
                 this.removeData(currentArr, isr[0])
               } else if (isr.length > 1) {
@@ -305,7 +305,7 @@
                   t.style.border = '2px solid rgba(255, 255, 255, 0.8)'
                   t.addEventListener('click', (e) => {
                     e.stopPropagation()
-                    console.log(2, '消除事件')
+                    //console.log(2, '消除事件')
                     this.removeData(currentArr, element)
                   })
                 });
@@ -354,7 +354,7 @@
                 const t = this.itemRefs[`i-${row}-${i}`]
                 t.style.color = '#1fcf5d'
               }
-              console.log('高亮', row, col)
+              //console.log('高亮', row, col)
             },
             /**
              * @description: 鼠标按下
@@ -364,7 +364,6 @@
             mouseDown(e) {
               e.preventDefault()
               if (this.removesData.length) return
-              console.log(1)
               this.startMousePosition = [e.clientX, e.clientY]
               const [row, col] = this.getColAndRow(this.startMousePosition)//传入坐标 换算 第几个块
               if (this.getElementNode([row, col]) === 0) return //如果是空块，则不响应
@@ -376,7 +375,7 @@
                   const moreNode = this.getMoreNode([row, col])
                 }, 500)
               }
-              console.log('当前点击的点->>>>>', e)
+              //console.log('当前点击的点->>>>>', e)
 
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)
@@ -412,38 +411,41 @@
                 this.resetData()
                 return
               }
-              let firstArr = []//记录第一个点的位置
-              let moveData = []//移动前的值
-              let newObj = []//新的位置
-              for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
-                const v = moveObj.moveData[i]
-                let data = this.getCoordinateToPosition(moveObj.move, i, e, false)
-                let node = this.getElementNode(v)
-                moveData.push(node)
-                newObj.push(data)
-                this.setElementNode(data, node)
-                this.setElementNode(v, 0)
-                //复位
-                this.updatePosition(v, moveObj.axis, [0, 0])
-                if (i === 0) {
-                  firstArr = data
-                }
-                console.log('可消除的点123', v, data, node)
-              }
-              //this.getTwoDimensionalArrData()
-              //获取当前的位置
+              let firstNode = moveObj.moveData[0]//第一个点
+              let firstNewNode = this.getCoordinateToPosition(moveObj.move, 0, e, false)//记录第一个点的新位置
+              let firsrValue = this.getElementNode(firstNode)//第一个点的值
+              let newNodeOldValue = this.getElementNode(firstNewNode)//新点以前的值
+              this.setElementNode(firstNewNode, firsrValue)
+              this.setElementNode(firstNode, 0)
+              this.updatePosition(firstNode, moveObj.axis, [0, 0])//复位
               //获取当前周围的点
-              const isrd = this.getSelection(firstArr)
+              const isrd = this.getSelection(firstNewNode)
               console.log('可消除的点up-isr', isrd)
               //如果没有可以消除的点就将其还原 复位
               if (isrd.length === 0) {
-                moveObj.moveData.map((v, i) => {
-                  this.setElementNode(v, moveData[i])
-                })
-                newObj.map(v => {
-                  this.setElementNode(v, 0)
-                })
+                console.log(`没有可消除的点,复位,${moveObj.moveData}`)
+                //将第一个点复位
+                this.setElementNode(firstNode, firsrValue)
+                this.setElementNode(firstNewNode, newNodeOldValue)
+                for (let i = moveObj.moveData.length - 1; i >= 0; i--) {
+                  this.updatePosition(moveObj.moveData[i], moveObj.axis, [0, 0])//复位
+                }
+                this.resetData()
+                return
               }
+
+
+              for (let i = moveObj.moveData.length - 1; i >= 1; i--) {
+                const v = moveObj.moveData[i]
+                let data = this.getCoordinateToPosition(moveObj.move, i, e, false)
+                //三目运算 判断该点是不是已经被第一个元素取代了位置  如果是，就将该点原值付上，否则就去获取原来该点的位置
+                let node = JSON.stringify(v) === JSON.stringify(firstNewNode) ? newNodeOldValue : this.getElementNode(v)
+                this.setElementNode(data, node)
+                this.setElementNode(v, 0)
+                this.updatePosition(v, moveObj.axis, [0, 0])//复位
+                console.log(`正在移动块，原点位置：${v}，移动后位置：${data}，值为${node}`)
+              }
+
               this.resetData()
             },
             /**
@@ -456,7 +458,6 @@
               e.preventDefault()
               if (this.time1) clearTimeout(this.time1)
               if (!this.clickIndexData.length) return
-              console.log('move后')
               const direction = this.getDirection(e)
               const moveObj = this.getMove()
               if (this.checkLastEle(moveObj, e)) {
@@ -489,7 +490,7 @@
               //如果是最后一个元素   判断有没有越位
               if (moveObj.moveData.length === 0) return status
               const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e, true)
-              console.log('正在移动的所有块', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
+              //console.log('正在移动的所有块', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
               if (JSON.stringify(pos) === JSON.stringify(this.clickIndexData)) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
@@ -516,7 +517,7 @@
              
              */
             getCoordinateToPosition(move, n, e, isCoordinate = false) {
-              console.log('get', move, n, e)
+              // console.log('get', move, n, e)
               if (n === 0) return this.getColAndRow([e.clientX, e.clientY])
               let s = []
               switch (move) {
