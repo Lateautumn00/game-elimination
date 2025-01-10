@@ -23,6 +23,9 @@
         </div>
       </section>
       <button @click="updataShuffle">洗牌</button>
+      x:<input type="text" v-model="x" />
+      y:<input type="text" v-model="y" />
+      <button @click="aaa()">消除该点</button>
     </main>
 
 
@@ -56,9 +59,12 @@
             let directionArr = Object.keys(indexData)// ['click', 'left', 'right', 'up', 'down']
             let moveData = []//当前移动块s
             let removesData = []
+            let x = ref()
+            let y = ref()
             return {
               eliData, eliApp, itemRefs, offsetData, time1, startMousePosition, num,
               chunkSize, clickIndexData, indexData, move, directionArr, moveData, removesData,
+              x, y
             }
           },
           created() {
@@ -71,6 +77,10 @@
           },
 
           methods: {
+            aaa() {
+              console.log(this.x, this.y)
+              this.setElementNode([this.x, this.y], 0)
+            },
             /**
              * @description: Fisher-Yates洗牌算法   100
              * @param {*} array
@@ -296,7 +306,7 @@
             getSelection(currentArr) {
               this.setIndexData(currentArr)
               const isr = this.isrRemove() //一个元素 默认消除，多个元素要手动选择一个消除点
-              //console.log('可消除的点isr', isr)
+              console.log('可消除的点isr', isr)
               if (isr.length === 1) {
                 this.removeData(currentArr, isr[0])
               } else if (isr.length > 1) {
@@ -375,7 +385,7 @@
                   const moreNode = this.getMoreNode([row, col])
                 }, 500)
               }
-              //console.log('当前点击的点->>>>>', e)
+              console.log('当前点击的点->>>>>', e)
 
               //console.log('down',e)
               this.eliApp.addEventListener('mousemove', this.mouseMove)
@@ -441,7 +451,7 @@
                 //三目运算 判断该点是不是已经被第一个元素取代了位置  如果是，就将该点原值付上，否则就去获取原来该点的位置
                 let node = JSON.stringify(v) === JSON.stringify(firstNewNode) ? newNodeOldValue : this.getElementNode(v)
                 this.setElementNode(data, node)
-                this.setElementNode(v, 0)
+                if (JSON.stringify(v) !== JSON.stringify(firstNewNode)) this.setElementNode(v, 0)
                 this.updatePosition(v, moveObj.axis, [0, 0])//复位
                 console.log(`正在移动块，原点位置：${v}，移动后位置：${data}，值为${node}`)
               }
@@ -490,7 +500,7 @@
               //如果是最后一个元素   判断有没有越位
               if (moveObj.moveData.length === 0) return status
               const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e, true)
-              //console.log('正在移动的所有块', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
+              console.log('正在移动的所有块', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
               if (JSON.stringify(pos) === JSON.stringify(this.clickIndexData)) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
