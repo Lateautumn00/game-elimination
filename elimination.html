@@ -505,8 +505,8 @@
               let status = false //false 没有越位  true 有越位  默认没有越位
               //如果是最后一个元素   判断有没有越位
               if (moveObj.moveData.length === 0) return status
-              const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e, true)
-              console.log('正在移动的所有块', moveObj.move, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
+              const pos = this.getCoordinateToPosition(moveObj.move, moveObj.moveData.length - 1, e, false)//该处最后设置为true  太灵敏，效果上面不友好
+              console.log('当前判断那块越位', moveObj, moveObj.moveData.length - 1, pos, this.getElementNode(pos))
               if (JSON.stringify(pos) === JSON.stringify(this.clickIndexData)) return status //防止还未移出当前位置，就触发移出事件，误判结果
               if (pos[0] < 0 || pos[1] < 0 || pos[0] > (this.eliData.length - 1) || pos[1] > (this.eliData[0].length - 1)) {
                 console.error('越位了')
@@ -529,7 +529,7 @@
              * @param {Object} move 移动的快方向
              * @param {Number} n 移动的快方向的第几块 从当前移动块之后的块 开始数
              * @param {Number} e 移动的快
-             * @param {Boolean} isCoordinate 是否是判断越界  true 是判断越界 false 不是判断越界 就是正常坐标转换
+             * @param {Boolean} isCoordinate 是否是判断越界  true 是判断越界（包括最下面的边界  特灵敏 慎用） false 不是判断越界 就是正常坐标转换
              
              */
             getCoordinateToPosition(move, n, e, isCoordinate = false) {
@@ -566,10 +566,10 @@
              * @return {*}
              */
             getColAndRow([x, y]) {
-              let col = Math.ceil((x - this.offsetData.start[0]) / this.balckSideLength) - 1
-              let row = Math.ceil((y - this.offsetData.start[1]) / this.balckSideLength) - 1
-              // let col = Math.floor((x - this.offsetData.start[0]) / this.balckSideLength)
-              // let row = Math.floor((y - this.offsetData.start[1]) / this.balckSideLength)
+              // let col = Math.ceil((x - this.offsetData.start[0]) / this.balckSideLength) - 1
+              // let row = Math.ceil((y - this.offsetData.start[1]) / this.balckSideLength) - 1
+              let col = Math.floor((x - this.offsetData.start[0]) / this.balckSideLength)
+              let row = Math.floor((y - this.offsetData.start[1]) / this.balckSideLength)
               return [row, col]
             },
             /**
