@@ -23,9 +23,12 @@
         </div>
       </section>
       <button @click="updataShuffle">洗牌</button>
-      x:<input type="text" v-model="x" />
-      y:<input type="text" v-model="y" />
-      <button @click="aaa()">消除该点</button>
+      <section style="color: black;">
+        <span>x:</span><input type="number" v-model.number="x" placeholder="x" />
+        <span>y:</span><input type="number" v-model.number="y" placeholder="y" />
+        <button @click="aaa()">消除该点</button>
+      </section>
+
     </main>
 
 
@@ -78,6 +81,9 @@
 
           methods: {
             aaa() {
+              if (!this.x || !this.y) {
+                throw new Error('请输入坐标')
+              }
               console.log(this.x, this.y)
               this.setElementNode([this.x, this.y], 0)
             },
