@@ -73,7 +73,7 @@
           computed: {
             //位移至少多少距离，才移动，设置不应小于balckSideLength一半 或 大于balckSideLength
             minDisplacement() {
-              console.log('balckSideLength', this.balckSideLength, Math.ceil(this.balckSideLength * 3 / 4))
+              //console.log('balckSideLength', this.balckSideLength, Math.ceil(this.balckSideLength * 3 / 4))
               return Math.ceil(this.balckSideLength * 3 / 4)
             }
           },
@@ -81,10 +81,8 @@
             this.init()
           },
           mounted() {
-            this.offsetData.start = [this.eliApp.offsetLeft, this.eliApp.offsetTop]
-            this.offsetData.end = [this.eliApp.offsetLeft + this.eliApp.offsetWidth, this.eliApp.offsetTop + this.eliApp.offsetHeight]
-            this.balckSideLength = this.itemRefs['i-0-0'].offsetWidth//获取第一个小块的宽度
-            console.log('位移', this.displacement)
+            this.setData()
+            window.addEventListener('resize', this.handleResize);
           },
 
           methods: {
@@ -94,6 +92,20 @@
               }
               console.log(this.x, this.y)
               this.setElementNode([this.x, this.y], 0)
+            },
+            /**
+             * @description: 页面缩放 重新计算
+             * @param {*}
+             * @return {*}
+             */
+            handleResize() {
+              //console.log('resize------')
+              this.setData()
+            },
+            setData() {
+              this.offsetData.start = [this.eliApp.offsetLeft, this.eliApp.offsetTop]
+              this.offsetData.end = [this.eliApp.offsetLeft + this.eliApp.offsetWidth, this.eliApp.offsetTop + this.eliApp.offsetHeight]
+              this.balckSideLength = this.itemRefs['i-0-0'].offsetWidth//获取第一个小块的宽度
             },
             /**
              * @description: Fisher-Yates洗牌算法   100
