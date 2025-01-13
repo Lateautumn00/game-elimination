@@ -379,7 +379,8 @@
                * @return {*}
                */
             setHightLight(e) {
-              let [row, col] = this.getColAndRow([e.clientX, e.clientY])
+              //let [row, col] = this.getColAndRow([e.clientX, e.clientY])
+              let [row, col] = this.getCoordinateToPosition(this.move, 0, e, false)
               let colNum = this.eliData.length;
               let rowNum = this.chunkSize;
               for (let i = 0; i < rowNum; i++) {
