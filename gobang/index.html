@@ -12,23 +12,32 @@
 
   <body>
     <main id="app">
-      <section id="gobang-app" ref="gobangApp">
-        <div class="gobang-board1">
-          <div v-for="(row, rowIndex) in board1" :key="rowIndex" class="gobang-row">
-            <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
-              :class="'i-'+rowIndex+'-'+colIndex">
+
+      <header>{{ text }}</header>
+      <div class="container">
+        <section id="gobang-app" ref="gobangApp">
+          <div class="gobang-board1">
+            <div v-for="(row, rowIndex) in board1" :key="rowIndex" class="gobang-row">
+              <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
+                :class="'i-'+rowIndex+'-'+colIndex">
+              </div>
             </div>
           </div>
-        </div>
-        <div class="gobang-board2">
-          <div v-for="(row, rowIndex) in board" :key="rowIndex" class="gobang-row">
-            <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
-              :class="{'black': cell === 1, 'white': cell === 2}" :ref="setItemRef('i-'+rowIndex+'-'+colIndex)"
-              @click="placeStone(rowIndex, colIndex)">
+          <div class="gobang-board2">
+            <div v-for="(row, rowIndex) in board" :key="rowIndex" class="gobang-row">
+              <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
+                :class="{'black': cell === 1, 'white': cell === 2}" :ref="setItemRef('i-'+rowIndex+'-'+colIndex)"
+                @click="placeStone(rowIndex, colIndex)">
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+        <section class="list-text">
+          <div v-for="(value,i) in listText" :key="i">
+            {{ value }}
+          </div>
+        </section>
+      </div>
     </main>
 
     <script type="module">
@@ -36,6 +45,8 @@
 
       createApp({
         setup() {
+          let text = ref('五子棋')
+          let listText = reactive(['开始'])
           const boardSize = 14; // 棋盘大小
           const board1 = reactive(Array.from({ length: boardSize }, () => Array(boardSize).fill(0))); // 初始化棋盘
           const board = reactive(Array.from({ length: boardSize + 1 }, () => Array(boardSize + 1).fill(0))); // 初始化棋盘
@@ -54,12 +65,12 @@
                 let newData = itemRefs.value[`i-${item[0]}-${item[1]}`]
                 newData.style.setProperty('--hover-color', 'red')
               })
-              console.log('五子连珠', placement.value === 1 ? '黑棋胜利' : '白棋胜利')
+              listText.unshift(`五子连珠，${placement.value === 1 ? '黑棋胜利' : '白棋胜利'}`)
             }
           })
           watch(() => [placement.rowIndex, placement.colIndex],
             ([newRowIndex, newColIndex], [oldRowIndex, oldColIndex]) => {
-              console.log('落子', newRowIndex, newColIndex, oldRowIndex, oldColIndex)
+              listText.unshift(`${placement.value === 1 ? '黑棋' : '白棋'}落子成功,位置:[${newRowIndex},${newColIndex}]`)
               if (oldRowIndex !== -1 && oldColIndex !== -1) {
                 let old = itemRefs.value[`i-${oldRowIndex}-${oldColIndex}`]
                 old.style.setProperty('--hover-color', 'transparent')
@@ -84,6 +95,7 @@
           const placeStone = (rowIndex, colIndex) => {
             if (arr.value.length >= 5) {
               alert('已经五子连珠')
+              listText.unshift(`已经五子连珠`)
               return
             }
             if (board[rowIndex][colIndex] === 0) {
@@ -94,6 +106,7 @@
                 value: currentPlayer.value
               })
               currentPlayer.value = currentPlayer.value === 1 ? 2 : 1; // 切换玩家
+              text.value = `下${currentPlayer.value === 1 ? '黑棋' : '白棋'}`
               isSatisfy()
             }
 
@@ -158,7 +171,7 @@
             console.log(111, arr.value)
           }
           return {
-            board, board1, placeStone, isSatisfy, arr, itemRefs, setItemRef
+            board, board1, placeStone, isSatisfy, arr, itemRefs, setItemRef, text, listText
           };
         },
         methods: {

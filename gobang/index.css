@@ -6,7 +6,9 @@ body {
   margin: 0;
   background-color: #f0f0f0;
 }
-
+.container{
+  display: flex;
+}
 #gobang-app {
   display: flex;
   justify-content: center;
@@ -66,4 +68,12 @@ body {
 
 .gobang-board2 > .gobang-row > .gobang-cell.white {
   background-color: white;
+}
+.list-text{
+  border: 1px solid red;
+  width: 200px;
+  overflow: auto;
+}
+.list-text > div{
+  line-height: 30px;
 }
