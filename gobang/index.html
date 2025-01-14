@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>五子棋</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+    <main id="app">
+      <section id="gobang-app" ref="gobangApp">
+        <div class="gobang-board1">
+          <div v-for="(row, rowIndex) in board1" :key="rowIndex" class="gobang-row">
+            <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
+              :class="'i-'+rowIndex+'-'+colIndex">
+            </div>
+          </div>
+        </div>
+        <div class="gobang-board2">
+          <div v-for="(row, rowIndex) in board" :key="rowIndex" class="gobang-row">
+            <div v-for="(cell, colIndex) in row" :key="colIndex" class="gobang-cell"
+              :class="{'black': cell === 1, 'white': cell === 2}" :ref="setItemRef('i-'+rowIndex+'-'+colIndex)"
+              @click="placeStone(rowIndex, colIndex)">
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { createApp, ref, reactive, watch } from '../vue.esm-browser.js';
+
+      createApp({
+        setup() {
+          const boardSize = 14; // 棋盘大小
+          const board1 = reactive(Array.from({ length: boardSize }, () => Array(boardSize).fill(0))); // 初始化棋盘
+          const board = reactive(Array.from({ length: boardSize + 1 }, () => Array(boardSize + 1).fill(0))); // 初始化棋盘
+          const currentPlayer = ref(1); // 1 表示黑棋，2 表示白棋
+          let placement = reactive({
+            rowIndex: -1,
+            colIndex: -1,
+            value: 0
+          })//当前落子点
+          let itemRefs = ref({}); // 创建一个 refs 对象来存储 DOM 元素的引用
+          let arr = ref([])
+          watch(arr, (newValue, oldValue) => {
+            //console.log('监听到数据变化', newValue, oldValue)
+            if (newValue.length >= 5) {
+              newValue.forEach((item, index) => {
+                let newData = itemRefs.value[`i-${item[0]}-${item[1]}`]
+                newData.style.setProperty('--hover-color', 'red')
+              })
+              console.log('五子连珠', placement.value === 1 ? '黑棋胜利' : '白棋胜利')
+            }
+          })
+          watch(() => [placement.rowIndex, placement.colIndex],
+            ([newRowIndex, newColIndex], [oldRowIndex, oldColIndex]) => {
+              console.log('落子', newRowIndex, newColIndex, oldRowIndex, oldColIndex)
+              if (oldRowIndex !== -1 && oldColIndex !== -1) {
+                let old = itemRefs.value[`i-${oldRowIndex}-${oldColIndex}`]
+                old.style.setProperty('--hover-color', 'transparent')
+              }
+              let newData = itemRefs.value[`i-${newRowIndex}-${newColIndex}`]
+              newData.style.setProperty('--hover-color', 'red')
+
+            })
+          const setItemRef = (id) => {
+            return (el) => {
+              if (el) {
+                itemRefs.value[id] = el;
+              }
+            };
+          }
+          /**
+           * @description: 落子
+           * @param {*} rowIndex
+           * @param {*} colIndex
+           * @return {*}
+           */
+          const placeStone = (rowIndex, colIndex) => {
+            if (arr.value.length >= 5) {
+              alert('已经五子连珠')
+              return
+            }
+            if (board[rowIndex][colIndex] === 0) {
+              board[rowIndex][colIndex] = currentPlayer.value;
+              Object.assign(placement, {
+                rowIndex,
+                colIndex,
+                value: currentPlayer.value
+              })
+              currentPlayer.value = currentPlayer.value === 1 ? 2 : 1; // 切换玩家
+              isSatisfy()
+            }
+
+          }
+          const isSatisfy = () => {
+            // 判断是否满足五子连珠
+            let n = 1
+            arr.value = [[placement.rowIndex, placement.colIndex]]
+            while (arr.value.length < 5 && arr.value[0][1] - n >= 0 && board[arr.value[0][0]][arr.value[0][1] - n] === placement.value) {
+              arr.value.push([arr.value[0][0], arr.value[0][1] - n])
+              n += 1
+            }//往前走
+            if (arr.value.length >= 5) return
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][1] + n <= boardSize && board[arr.value[0][0]][arr.value[0][1] + n] === placement.value) {
+              arr.value.push([arr.value[0][0], arr.value[0][1] + n])
+              n += 1
+            }//往后走
+            if (arr.value.length >= 5) return
+            arr.value = [[placement.rowIndex, placement.colIndex]]
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] - n >= 0 && board[arr.value[0][0] - n][arr.value[0][1]] === placement.value) {
+              arr.value.push([arr.value[0][0] - n, arr.value[0][1]])
+              n += 1
+            }
+            //往上走
+            if (arr.value.length >= 5) return
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] + n <= boardSize && board[arr.value[0][0] + n][arr.value[0][1]] === placement.value) {
+              arr.value.push([arr.value[0][0] + n, arr.value[0][1]])
+              n += 1
+            }
+            //往下走
+            if (arr.value.length >= 5) return
+            arr.value = [[placement.rowIndex, placement.colIndex]]
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] - n >= 0 && arr.value[0][1] - n >= 0 && board[arr.value[0][0] - n][arr.value[0][1] - n] === placement.value) {
+              arr.value.push([arr.value[0][0] - n, arr.value[0][1] - n])
+              n += 1
+            }
+            //往左上走
+            if (arr.value.length >= 5) return
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] + n <= boardSize && arr.value[0][1] + n >= 0 && board[arr.value[0][0] + n][arr.value[0][1] + n] === placement.value) {
+              arr.value.push([arr.value[0][0] + n, arr.value[0][1] + n])
+              n += 1
+            }//往右下走
+            if (arr.value.length >= 5) return
+            arr.value = [[placement.rowIndex, placement.colIndex]]
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] - n >= 0 && arr.value[0][1] + n <= boardSize && board[arr.value[0][0] - n][arr.value[0][1] + n] === placement.value) {
+              arr.value.push([arr.value[0][0] - n, arr.value[0][1] + n])
+              n += 1
+            }//往右上走
+            if (arr.value.length >= 5) return
+            n = 1
+            while (arr.value.length < 5 && arr.value[0][0] + n <= boardSize && arr.value[0][1] - n >= 0 && board[arr.value[0][0] + n][arr.value[0][1] - n] === placement.value) {
+              arr.value.push([arr.value[0][0] + n, arr.value[0][1] - n])
+              n += 1
+            }
+            //往左下走
+            console.log(111, arr.value)
+          }
+          return {
+            board, board1, placeStone, isSatisfy, arr, itemRefs, setItemRef
+          };
+        },
+        methods: {
+
+        }
+      }).mount('#app');
+    </script>
+  </body>
+
+</html>
