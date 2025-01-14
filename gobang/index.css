@@ -1,3 +1,7 @@
+:root{
+  --side-length:40px;
+  --side-num:14;
+}
 body {
   display: flex;
   justify-content: center;
@@ -17,8 +21,8 @@ body {
 }
 .gobang-board1 {
   display: grid;
-  grid-template-columns: repeat(14, 40px);
-  grid-template-rows: repeat(14, 40px);
+  grid-template-columns: repeat(var(--side-num), var(--side-length));
+  grid-template-rows: repeat(var(--side-num), var(--side-length));
   gap: 1px;
   background-color: #000;
   border: 1px solid #000;
@@ -70,8 +74,9 @@ body {
   background-color: white;
 }
 .list-text{
-  border: 1px solid red;
+  border: 1px solid rgb(157, 169, 64);
   width: 200px;
+  height: 575px;
   overflow: auto;
 }
 .list-text > div{
