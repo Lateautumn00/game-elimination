@@ -224,18 +224,20 @@
              * @return {*}
              */
             isrRemove() {
+              console.log(1234, this.indexData)
               if (this.removesData.length > 0) return this.removesData
               let arr = []
-              if (this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)) {
+
+              if (JSON.stringify(this.indexData.left) !== JSON.stringify(this.indexData.click) && this.getElementNode(this.indexData.left) === this.getElementNode(this.indexData.click)) {
                 arr.push(this.indexData.left)
               }
-              if (this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)) {
+              if (JSON.stringify(this.indexData.right) !== JSON.stringify(this.indexData.click) && this.getElementNode(this.indexData.right) === this.getElementNode(this.indexData.click)) {
                 arr.push(this.indexData.right)
               }
-              if (this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)) {
+              if (JSON.stringify(this.indexData.up) !== JSON.stringify(this.indexData.click) && this.getElementNode(this.indexData.up) === this.getElementNode(this.indexData.click)) {
                 arr.push(this.indexData.up)
               }
-              if (this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)) {
+              if (JSON.stringify(this.indexData.down) !== JSON.stringify(this.indexData.click) && this.getElementNode(this.indexData.down) === this.getElementNode(this.indexData.click)) {
                 arr.push(this.indexData.down)
               }
               this.removesData = arr
@@ -249,12 +251,14 @@
             getRowDatas() {
               //向左移动指针
               do {
+                if (this.indexData.left[1] - 1 < 0) break
                 this.indexData.left[1] -= 1
-              } while (this.indexData.left[1] >= 0 && this.getElementNode(this.indexData.left) === 0)
+              } while (this.getElementNode(this.indexData.left) === 0)
               //向右移动指针
               do {
+                if (this.indexData.right[1] + 1 >= this.chunkSize) break
                 this.indexData.right[1] += 1
-              } while (this.indexData.right[1] < this.chunkSize && this.getElementNode(this.indexData.right) === 0)
+              } while (this.getElementNode(this.indexData.right) === 0)
             },
             /**
              * @description: 判断同一列是否还有可消除的
@@ -263,13 +267,15 @@
             getColDatas() {
               //向上移动指针
               do {
+                if (this.indexData.up[0] - 1 < 0) break
                 this.indexData.up[0] -= 1
-              } while (this.indexData.up[0] >= 0 && this.getElementNode(this.indexData.up) === 0)
+              } while (this.getElementNode(this.indexData.up) === 0)
               //向下移动指针
 
               do {
+                if (this.indexData.down[0] + 1 >= this.eliData.length) break
                 this.indexData.down[0] += 1
-              } while (this.indexData.down[0] < this.eliData.length && this.getElementNode(this.indexData.down) === 0)
+              } while (this.getElementNode(this.indexData.down) === 0)
               //console.log(this.indexData)
             },
 
