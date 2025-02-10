@@ -1,0 +1,41 @@
+:root{
+  --side-length:50px;
+  --side-num:3;
+  --font-size:16px;
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+#sudoku-app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.shudukuApp{
+  display: grid;
+  grid-template-columns: repeat(var(--side-num), calc(var(--side-length) * var(--side-num)));
+  grid-template-rows: repeat(var(--side-num), calc(var(--side-length) * var(--side-num)));
+}
+.game-board{
+  display: grid;
+  grid-template-columns: repeat(var(--side-num), var(--side-length));
+  grid-template-rows: repeat(var(--side-num), var(--side-length));
+  gap: 1px;
+  border: 2px solid #000;
+  color: #000;
+  background-color: #000;
+  font-weight: bold;
+  font-size: var(--font-size);
+}
+.game-board > .row {
+  display: contents;
+  text-align: center;
+  line-height: var(--side-length);
+}
+.game-board > .row > .cell {
+  width: var(--side-length);
+  height: var(--side-length);
+  background-color: rgba(255, 255, 255,1);
+  
+}

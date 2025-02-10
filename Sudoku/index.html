@@ -1,0 +1,289 @@
+<!--
+ * @Description: 
+ * @Author: 晚秋
+ * @version: 
+ * @Date: 2025-01-15 11:59:52
+ * @LastEditors: 晚秋
+ * @LastEditTime: 2025-02-10 15:58:14
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>数独</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+    <main id="app">
+      <section id="sudoku-app" ref="shudukuApp">
+        <div class="shudukuApp">
+          <div v-for="(value,index) in list" :key="index" class="game-board">
+            <div v-for="(value1,index1) in value" :key="index1" class="row">
+              <div v-for="(value2,index2) in value1" :key="index2" class="cell"
+                :class="`item-${index}-${index1}-${index2}`">
+                {{ value2 }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <button @click="isData">判断</button>
+      </section>
+    </main>
+
+    <script type="module">
+      import { createApp, ref, reactive, watch } from '../vue.esm-browser.js';
+
+      createApp({
+        setup() {
+          const list = reactive(Array.from({ length: 9 }, () => {
+            return Array.from({ length: 3 }, () => [])
+          }));
+          return {
+            list
+          };
+        },
+        computed: {
+
+        },
+        watch: {
+
+        },
+        created() {
+          this.init();
+        },
+        mounted() {
+        },
+        methods: {
+          isData() {
+            //判断块内的
+            for (let i = 0; i < 9; i++) {
+              let n = (Array.from(new Set(this.list[i].flat())))
+              if (n.length < 9) {
+                console.error(this.list[i].flat())
+                throw new Error(`${i}块内重复${JSON.stringify(this.list[i].flat())}-->>${n}`)
+              }
+            }
+            //判断行内
+            let arr = [
+              [this.list[0][0], this.list[1][0], this.list[2][0]],
+              [this.list[0][1], this.list[1][1], this.list[2][1]],
+              [this.list[0][2], this.list[1][2], this.list[2][2]],
+              [this.list[3][0], this.list[4][0], this.list[5][0]],
+              [this.list[3][1], this.list[4][1], this.list[5][1]],
+              [this.list[3][2], this.list[4][2], this.list[5][2]],
+              [this.list[6][0], this.list[7][0], this.list[8][0]],
+              [this.list[6][1], this.list[7][1], this.list[8][1]],
+              [this.list[6][2], this.list[7][2], this.list[8][2]],
+            ]
+            for (let i = 0; i < 9; i++) {
+              let n = (Array.from(new Set(arr[i].flat())))
+              if (n.length < 9) {
+                console.error(arr[i].flat())
+                throw new Error(`${i}行内重复${JSON.stringify(arr[i].flat())}-->>${n}`)
+              }
+            }
+
+            //列
+            let arr1 = [
+              [this.list[0][0][0], this.list[0][1][0], this.list[0][2][0], this.list[3][0][0], this.list[3][1][0], this.list[3][2][0], this.list[6][0][0], this.list[6][1][0], this.list[6][2][0],],
+              [this.list[0][0][1], this.list[0][1][1], this.list[0][2][1], this.list[3][0][1], this.list[3][1][1], this.list[3][2][1], this.list[6][0][1], this.list[6][1][1], this.list[6][2][1],],
+              [this.list[0][0][2], this.list[0][1][2], this.list[0][2][2], this.list[3][0][2], this.list[3][1][2], this.list[3][2][2], this.list[6][0][2], this.list[6][1][2], this.list[6][2][2],],
+              [this.list[1][0][0], this.list[1][1][0], this.list[1][2][0], this.list[4][0][0], this.list[4][1][0], this.list[4][2][0], this.list[7][0][0], this.list[7][1][0], this.list[7][2][0],],
+              [this.list[1][0][1], this.list[1][1][1], this.list[1][2][1], this.list[4][0][1], this.list[4][1][1], this.list[4][2][1], this.list[7][0][1], this.list[7][1][1], this.list[7][2][1],],
+              [this.list[1][0][2], this.list[1][1][2], this.list[1][2][2], this.list[4][0][2], this.list[4][1][2], this.list[4][2][2], this.list[7][0][2], this.list[7][1][2], this.list[7][2][2],],
+              [this.list[2][0][0], this.list[2][1][0], this.list[2][2][0], this.list[5][0][0], this.list[5][1][0], this.list[5][2][0], this.list[8][0][0], this.list[8][1][0], this.list[8][2][0],],
+              [this.list[2][0][1], this.list[2][1][1], this.list[2][2][1], this.list[5][0][1], this.list[5][1][1], this.list[5][2][1], this.list[8][0][1], this.list[8][1][1], this.list[8][2][1],],
+              [this.list[2][0][2], this.list[2][1][2], this.list[2][2][2], this.list[5][0][2], this.list[5][1][2], this.list[5][2][2], this.list[8][0][2], this.list[8][1][2], this.list[8][2][2],],
+            ]
+            for (let i = 0; i < 9; i++) {
+              let n = (Array.from(new Set(arr1[i].flat())))
+              if (n.length < 9) {
+                console.error(arr1[i].flat())
+                throw new Error(`${i}列内重复${JSON.stringify(arr1[i].flat())}-->>${n}`)
+              }
+            }
+          },
+          async init() {
+            this.list[0] = this.convertTo2DArray(this.getData([[], [], []], [[], [], []], 0), 3)
+            this.list[1] = this.convertTo2DArray(this.getData(this.list[0], [[], [], []], 1), 3)
+            this.list[2] = this.convertTo2DArray(this.getData([
+              [...this.list[0][0], ...this.list[1][0]],
+              [...this.list[0][1], ...this.list[1][1]],
+              [...this.list[0][2], ...this.list[1][2]]
+            ], [[], [], []], 2), 3)
+            this.list[3] = this.convertTo2DArray(this.getData([[], [], []], [
+              [this.list[0][0][0], this.list[0][1][0], this.list[0][2][0]],
+              [this.list[0][0][1], this.list[0][1][1], this.list[0][2][1]],
+              [this.list[0][0][2], this.list[0][1][2], this.list[0][2][2]]
+            ], 3), 3)
+
+            this.list[4] = this.convertTo2DArray(this.getData(this.list[3], [
+              [this.list[1][0][0], this.list[1][1][0], this.list[1][2][0]],
+              [this.list[1][0][1], this.list[1][1][1], this.list[1][2][1]],
+              [this.list[1][0][2], this.list[1][1][2], this.list[1][2][2]]
+            ], 4), 3)
+
+            this.list[5] = this.convertTo2DArray(this.getData([
+              [...this.list[3][0], ...this.list[4][0]],
+              [...this.list[3][1], ...this.list[4][1]],
+              [...this.list[3][2], ...this.list[4][2]]
+            ], [
+              [this.list[2][0][0], this.list[2][1][0], this.list[2][2][0]],
+              [this.list[2][0][1], this.list[2][1][1], this.list[2][2][1]],
+              [this.list[2][0][2], this.list[2][1][2], this.list[2][2][2]]
+            ], 5), 3)
+            this.list[6] = this.convertTo2DArray(this.getData([
+              [],
+              [],
+              []
+            ], [
+              [this.list[0][0][0], this.list[0][1][0], this.list[0][2][0], this.list[3][0][0], this.list[3][1][0], this.list[3][2][0]],
+              [this.list[0][0][1], this.list[0][1][1], this.list[0][2][1], this.list[3][0][1], this.list[3][1][1], this.list[3][2][1]],
+              [this.list[0][0][2], this.list[0][1][2], this.list[0][2][2], this.list[3][0][2], this.list[3][1][2], this.list[3][2][2]]
+            ], 6), 3)
+            this.list[7] = this.convertTo2DArray(this.getData(this.list[6], [
+              [this.list[1][0][0], this.list[1][1][0], this.list[1][2][0], this.list[4][0][0], this.list[4][1][0], this.list[4][2][0]],
+              [this.list[1][0][1], this.list[1][1][1], this.list[1][2][1], this.list[4][0][1], this.list[4][1][1], this.list[4][2][1]],
+              [this.list[1][0][2], this.list[1][1][2], this.list[1][2][2], this.list[4][0][2], this.list[4][1][2], this.list[4][2][2]]
+            ], 7), 3)
+            this.list[8] = this.convertTo2DArray(this.getData([
+              [...this.list[6][0], ...this.list[7][0]],
+              [...this.list[6][1], ...this.list[7][1]],
+              [...this.list[6][2], ...this.list[7][2]]
+            ], [
+              [this.list[2][0][0], this.list[2][1][0], this.list[2][2][0], this.list[5][0][0], this.list[5][1][0], this.list[5][2][0]],
+              [this.list[2][0][1], this.list[2][1][1], this.list[2][2][1], this.list[5][0][1], this.list[5][1][1], this.list[5][2][1]],
+              [this.list[2][0][2], this.list[2][1][2], this.list[2][2][2], this.list[5][0][2], this.list[5][1][2], this.list[5][2][2]]
+            ], 8), 3)
+            //console.log(this.list)
+          },
+          getData(noData, noData1 = [], gg) {
+            let currentData = Array.from({ length: 9 }, (_, i) => i + 1)
+            let data = []//方块内不能取得
+            for (let i = 0; i < 9; i++) {
+              const dataNo = Array.from(new Set([...noData[(i / 3) | 0], ...noData1[i % 3]]))//当前行列不能取得
+              const filterData = currentData.filter(item => !Array.from(new Set([...dataNo, ...data])).includes(item))//过滤出能取的数据
+              if (filterData.length > 0) {
+                data.push(...this.shuffleArray(filterData).slice(0, 1))//取出一个经过随机排序的过滤数
+              } else {
+                data.push(undefined)
+              }
+
+            }
+            //未参与排序的数据
+            //console.log(gg, '当前数据', data)
+            const noParticipation = currentData.filter(item => !data.includes(item))//未参与排序的数据
+            if (gg === 8) console.log(gg, '未参与排序的数据', noParticipation, noParticipation.length)
+            if (noParticipation.length > 0) {
+              const noIndex = data.reduce((acc, value, index) => {
+                if (value === undefined) {
+                  acc.push(index);
+                }
+                return acc;
+              }, [])//需要确定数据的下标
+              if (gg === 8) console.log(gg, '未排序的数据', noParticipation, noIndex)
+              while (noParticipation.length > 0) {
+                let s = 0
+                let value = noParticipation.shift()
+                let index = noIndex.shift()
+                let dataNo1 = Array.from(new Set([...noData[(s / 3) | 0], ...noData1[s % 3]]))
+                let dataNo2 = Array.from(new Set([...noData[(index / 3) | 0], ...noData1[index % 3]]))
+
+                while (s < 9) {
+                  if (gg === 8) {
+                    console.log(gg, '交换前', data, dataNo1, dataNo2)
+                    console.log('---->>', s, index, s === index, value, data[s], dataNo1.includes(value), dataNo2.includes(data[s]))
+                  }
+
+
+                  if (!dataNo1.includes(value) && !dataNo2.includes(data[s])) {
+                    if (gg === 8) console.log(gg, `交换位置${s}与${index}，值分别是${data[s]}与${value}`)
+                    data[index] = data[s]
+                    data[s] = value
+                    break
+                  }
+                  if (s === 8) break
+                  s += 1
+                  dataNo1 = !data[s] ? currentData : Array.from(new Set([...noData[(s / 3) | 0], ...noData1[s % 3]]))
+                  if (!data[s]) {
+                    if (s === 8) {
+                      noParticipation.push(value)
+                      noIndex.push(index)
+                      throw new Error('交换失败')
+                      break
+                    }
+                    continue
+                  }
+
+                }
+
+              }
+            }
+
+            return data
+          },
+          getData1(noData, noData1 = [], gg) {
+            //console.log(gg, noData, noData1)
+            let currentData = Array.from({ length: 9 }, (_, i) => i + 1)
+            let data = []//方块内不能取得
+            for (let i = 0; i < 9; i++) {
+              const dataNo = Array.from(new Set([...noData[(i / 3) | 0], ...noData1[i % 3]]))
+              data.push(...this.shuffleArray(currentData.filter(item => !Array.from(new Set([...dataNo, ...data])).includes(item))).slice(0, 1))
+              if (i === 8) {
+                console.log('交换fei', noData[(i / 3) | 0], noData1[(i / 3) | 0])
+                console.log('交换前', data)
+                const m = currentData.filter((item, index) => !data.includes(item))
+                if (m.length) {
+                  for (let j = 0; j < m.length; j++) {
+                    let s = 0
+                    let d = data[s]
+                    let dataNo1 = Array.from(new Set([...noData[(s / 3) | 0], ...noData1[s % 3]]))
+                    while (dataNo.includes(d) || dataNo1.includes(m[j])) {
+                      if (((s + 1 / 3) | 0) > 2 || (s + 1 % 2) > 2) break
+                      s += 1
+                      d = data[s]
+                      //console.log('s', s, (s / 3) | 0, s % 3)
+
+                      dataNo1 = Array.from(new Set([...noData[(s / 3) | 0], ...noData1[s % 3]]))
+                    }
+                    data.splice(s, 1, m[j])
+                    data.push(d)
+                  }
+                }
+                console.log('交换后', data)
+                return data
+              }
+            }
+          },
+          /**
+           * @description: 
+           * @param {*} array
+           * @return {*}
+           */
+          shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+              // 生成一个0到i之间的随机索引
+              const j = Math.floor(Math.random() * (i + 1));
+              // 交换元素
+              [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+          },
+          convertTo2DArray(arr, subArrayLength) {
+            let result = [];
+            for (let i = 0; i < arr.length; i += subArrayLength) {
+              result.push(arr.slice(i, i + subArrayLength));
+            }
+            return result;
+          },
+        }
+      }).mount('#app');
+    </script>
+  </body>
+
+</html>
